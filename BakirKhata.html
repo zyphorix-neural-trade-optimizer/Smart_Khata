@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>স্মার্ট খাতা প্রো 😑</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+        
+        body { 
+            font-family: 'Hind Siliguri', sans-serif; 
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            color: #1e293b; 
+        }
+        
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(12px);
+            border-radius: 24px; 
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); 
+        }
+        
+        .active-update {
+            background: #f5f3ff !important;
+            border: 2px solid #6366f1 !important;
+            transform: scale(1.02);
+        }
+
+        .stat-card {
+            background: white; border-radius: 24px; padding: 20px;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.08);
+            cursor: pointer; transition: 0.3s; border: 2px solid transparent;
+        }
+        .stat-card.filter-active { border-color: #6366f1; background: #f5f3ff; }
+
+        .sheet { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; backdrop-filter: blur(8px); }
+        .sheet.active { display: flex; align-items: flex-end; justify-content: center; }
+        .sheet-content { 
+            background: white; width: 100%; max-width: 480px; 
+            border-top-left-radius: 32px; border-top-right-radius: 32px; 
+            padding: 32px; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            max-height: 90vh; overflow-y: auto;
+        }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .fab { position: fixed; bottom: 30px; right: 20px; width: 64px; height: 64px; border-radius: 20px; background: #4f46e5; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 24px rgba(79, 70, 229, 0.3); z-index: 900; }
+
+        .modal-input { width: 100%; padding: 16px; background-color: #f8fafc; border: 2px solid transparent; border-radius: 16px; outline: none; transition: 0.3s; font-size: 16px; }
+        .modal-input:focus { border-color: #6366f1; background-color: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        
+        .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: white; border: 1px solid #e2e8f0; color: #64748b; transition: 0.2s; }
+        
+        /* Backup Banner Style */
+        #backupBanner { display: none; }
+        #backupBanner.visible { display: flex; animation: slideDown 0.5s ease; }
+        @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+    </style>
+</head>
+<body class="pb-24">
+
+    <div id="backupBanner" class="fixed top-0 left-0 w-full bg-amber-500 text-white p-4 z-[2000] flex justify-between items-center shadow-xl">
+        <div class="flex items-center gap-3">
+            <div class="bg-amber-600 p-2 rounded-xl">
+                <i data-lucide="shield-alert" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold leading-tight">ডাটা ব্যাকআপ নেওয়া হয়নি!</p>
+                <p class="text-[10px] opacity-90">আপনার হিসাব নিরাপদ রাখতে আজই ব্যাকআপ ডাউনলোড করুন।</p>
+            </div>
+        </div>
+        <button onclick="shareBackup()" class="bg-white text-amber-600 px-4 py-2 rounded-xl text-xs font-black shadow-sm active:scale-95 transition-all">ব্যাকআপ নিন</button>
+    </div>
+
+    <div id="settingsSheet" class="sheet" onclick="closeOnOutsideClick(event, 'settingsSheet')">
+        <div class="sheet-content">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
+            <h3 class="text-xl font-black mb-6 flex items-center gap-2"><i data-lucide="sliders" class="w-5 h-5"></i> সেটিংস</h3>
+            <div class="space-y-6">
+                <div class="space-y-3">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">দোকানের নাম</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="shopNameInput" class="modal-input" placeholder="আপনার দোকানের নাম">
+                        <button onclick="askConfirmShopName()" class="bg-indigo-600 text-white px-5 rounded-2xl font-bold active:scale-95 transition-all">সেভ</button>
+                    </div>
+                </div>
+                <hr class="border-slate-100">
+                <div class="space-y-3">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">ডাটা ম্যানেজমেন্ট</label>
+                    <button onclick="shareBackup()" class="w-full p-4 rounded-2xl flex items-center gap-3 bg-white border border-slate-100 shadow-sm text-slate-700 font-bold active:scale-95 transition-all">
+                        <i data-lucide="download" class="w-5 h-5 text-indigo-500"></i> ডাটা ব্যাকআপ ডাউনলোড
+                    </button>
+                    <button onclick="uploadBackup()" class="w-full p-4 rounded-2xl flex items-center gap-3 bg-white border border-slate-100 shadow-sm text-slate-700 font-bold active:scale-95 transition-all">
+                        <i data-lucide="upload-cloud" class="w-5 h-5 text-emerald-500"></i> ডাটা ইম্পোর্ট করুন
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto p-5 mt-4">
+        <header class="flex justify-between items-center pt-6 pb-8">
+            <div>
+                <h1 id="shopNameDisplay" class="text-2xl font-black text-slate-900">স্মার্ট খাতা</h1>
+                <div class="flex items-center gap-1 mt-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Offline Secure Storage</p>
+                </div>
+            </div>
+            <button onclick="toggleSettings()" class="icon-btn" title="সেটিংস"><i data-lucide="settings" class="w-5 h-5"></i></button>
+        </header>
+
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div onclick="toggleFilter('paoa')" class="stat-card border-b-4 border-rose-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">পাওনা</p>
+                <h2 id="totalPaoa" class="text-2xl font-black text-slate-800">0</h2>
+            </div>
+            <div onclick="toggleFilter('dena')" class="stat-card border-b-4 border-emerald-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">দেনা</p>
+                <h2 id="totalDena" class="text-2xl font-black text-slate-800">0</h2>
+            </div>
+        </div>
+
+        <div class="relative mb-8">
+            <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300"></i>
+            <input type="text" id="searchBox" class="w-full p-5 glass-card border-none outline-none pl-14 text-sm font-medium" placeholder="খুঁজুন..." oninput="render()">
+        </div>
+
+        <div id="list" class="space-y-4"></div>
+    </div>
+
+    <button class="fab" onclick="toggleForm()"><i data-lucide="plus" class="w-8 h-8"></i></button>
+
+    <div id="confirmModal" class="sheet" style="z-index: 2500; background: rgba(15, 23, 42, 0.85);">
+        <div class="sheet-content" style="max-width: 360px; margin-bottom: 25vh; border-radius: 32px; text-align: center; padding: 40px 30px;">
+            <div id="confIcon" class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i id="confIconTag" data-lucide="alert-circle" class="w-8 h-8"></i>
+            </div>
+            <h3 id="confTitle" class="text-xl font-black text-slate-800 mb-2">নিশ্চিত?</h3>
+            <p id="confDesc" class="text-sm text-slate-400 mb-10 font-medium"></p>
+            <div class="flex gap-3" id="confBtnGroup">
+                <button onclick="closeConfirm()" class="flex-1 bg-slate-100 p-4 rounded-xl font-bold text-slate-500">বাতিল</button>
+                <button id="confActionBtn" class="flex-1 bg-indigo-600 text-white p-4 rounded-xl font-bold shadow-lg">কনফার্ম</button>
+            </div>
+            <button id="confOkBtn" onclick="closeConfirm()" class="hidden w-full bg-slate-900 text-white p-4 rounded-xl font-bold shadow-lg">ঠিক আছে</button>
+        </div>
+    </div>
+
+    <div id="formSheet" class="sheet" onclick="closeOnOutsideClick(event, 'formSheet')">
+        <div class="sheet-content">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
+            <h3 class="text-2xl font-black mb-6 text-slate-800">নতুন এন্ট্রি</h3>
+            <div class="space-y-4">
+                <input type="text" id="cName" class="modal-input" placeholder="কাস্টমারের নাম">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="cAddr" class="modal-input" placeholder="ঠিকানা">
+                    <input type="text" id="cPhone" class="modal-input" placeholder="ফোন">
+                </div>
+                <div class="bg-slate-50 p-2 rounded-2xl flex gap-2">
+                    <button id="typeAdd" onclick="setEntryType('add')" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-lg">বাকি</button>
+                    <button id="typeSub" onclick="setEntryType('sub')" class="flex-1 py-3 rounded-xl bg-white text-slate-400 text-xs font-bold transition-all">জমা</button>
+                </div>
+                <input type="number" id="cAmount" class="modal-input font-bold text-indigo-600 text-2xl text-center" placeholder="0.00">
+                <input type="text" id="cNote" class="modal-input" placeholder="নোট (ঐচ্ছিক)">
+                <button onclick="confirmEntryAction()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-bold mt-2 shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-5 h-5"></i> সেভ করুন
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="hModal" class="sheet" onclick="closeOnOutsideClick(event, 'hModal')">
+        <div class="sheet-content">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h2 id="mName" class="text-2xl font-black text-slate-800 tracking-tight">নাম</h2>
+                    <p id="mSub" class="text-[11px] text-slate-400 font-bold uppercase mt-1"></p>
+                </div>
+                <button onclick="askDeleteCustomer()" class="w-11 h-11 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center transition-all active:bg-rose-100">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-10">
+                <button onclick="openUpdateModal('add')" class="bg-rose-500 text-white p-6 rounded-[24px] font-black shadow-lg flex flex-col items-center gap-2 active:scale-95 transition-all">
+                    <i data-lucide="plus-circle" class="w-6 h-6"></i> বাকি
+                </button>
+                <button onclick="openUpdateModal('sub')" class="bg-emerald-500 text-white p-6 rounded-[24px] font-black shadow-lg flex flex-col items-center gap-2 active:scale-95 transition-all">
+                    <i data-lucide="check-circle" class="w-6 h-6"></i> জমা
+                </button>
+            </div>
+            <h3 class="font-bold text-slate-400 text-[10px] uppercase mb-5 tracking-[0.2em] flex items-center gap-2">
+                <i data-lucide="history" class="w-3 h-3"></i> লেনদেন ইতিহাস
+            </h3>
+            <div id="mHistory" class="space-y-3 max-h-64 overflow-y-auto pr-1"></div>
+        </div>
+    </div>
+
+    <div id="updateModal" class="sheet" style="z-index: 1100;" onclick="closeOnOutsideClick(event, 'updateModal')">
+        <div class="sheet-content" style="border-radius: 32px; margin-bottom: 20px; max-width: 400px;">
+            <h3 id="updateTitle" class="text-xl font-black mb-6 text-slate-800">আপডেট</h3>
+            <div class="space-y-4">
+                <input type="number" id="updateAmount" class="modal-input font-bold text-3xl text-center text-indigo-600" placeholder="0.00">
+                <input type="text" id="updateNote" class="modal-input" placeholder="সংক্ষিপ্ত নোট">
+                <button id="updateConfirmBtn" onclick="askConfirmUpdate()" class="w-full text-white p-5 rounded-2xl font-bold shadow-lg transition-all active:scale-95">কনফার্ম</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        let db;
+        const request = indexedDB.open("SmartKhataDB", 1);
+        request.onupgradeneeded = e => {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("customers")) db.createObjectStore("customers", { keyPath: "id" });
+        };
+        request.onsuccess = e => { 
+            db = e.target.result; 
+            loadShopName();
+            render(); 
+            checkBackupStatus(); // অ্যাপ খোলার সময় ব্যাকআপ চেক করবে
+        };
+
+        let curId = null, curAction = null, entryType = 'add', highlightedId = null, activeFilter = null;
+
+        // --- BACKUP LOGIC START ---
+        function checkBackupStatus() {
+            const lastBackup = localStorage.getItem('lastBackupDate');
+            const banner = document.getElementById('backupBanner');
+            
+            if (!lastBackup) {
+                // প্রথমবার অ্যাপ ব্যবহার করলে ১ সপ্তাহ পরের টাইম সেট করে রাখা ভালো
+                localStorage.setItem('lastBackupDate', Date.now());
+                return;
+            }
+
+            const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
+            const diff = Date.now() - parseInt(lastBackup);
+
+            if (diff >= oneWeekInMs) {
+                banner.classList.add('visible');
+            }
+        }
+
+        function shareBackup() {
+            getAllCustomers(customers => {
+                if (!customers || customers.length === 0) {
+                    showMessage("দুঃখিত!", "ডাউনলোড করার মতো কোনো ডাটা নেই।", "alert-triangle", "#f43f5e");
+                    return;
+                }
+                try {
+                    const today = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+                    const data = JSON.stringify(customers, null, 2);
+                    const blob = new Blob([data], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `Smart_Khata_Backup_${today}.json`;
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                    }, 200);
+
+                    // ব্যাকআপ সফল হলে সময় সেভ করা এবং ব্যানার সরানো
+                    localStorage.setItem('lastBackupDate', Date.now());
+                    document.getElementById('backupBanner').classList.remove('visible');
+                    
+                    showMessage("সফল!", "ব্যাকআপ ফাইলটি ডাউনলোড হয়েছে।", "download-cloud", "#10b981");
+                } catch (err) {
+                    showMessage("ভুল হয়েছে!", "আবার চেষ্টা করুন।", "x-circle", "#f43f5e");
+                }
+            });
+        }
+        // --- BACKUP LOGIC END ---
+
+        function loadShopName() {
+            const name = localStorage.getItem('shopName') || 'স্মার্ট খাতা';
+            document.getElementById('shopNameDisplay').innerText = name;
+            document.getElementById('shopNameInput').value = name;
+        }
+
+        function askConfirmShopName() {
+            const name = document.getElementById('shopNameInput').value;
+            if(!name) return;
+            showConfirm("নাম পরিবর্তন?", `দোকানের নাম কি "${name}" সেট করবেন?`, "check-circle", () => {
+                localStorage.setItem('shopName', name);
+                document.getElementById('shopNameDisplay').innerText = name;
+                closeAllModals();
+            });
+        }
+
+        function toggleSettings() { document.getElementById('settingsSheet').classList.toggle('active'); }
+
+        function getAllCustomers(callback) {
+            if (!db) return;
+            const store = db.transaction(["customers"], "readonly").objectStore("customers");
+            const req = store.getAll();
+            req.onsuccess = e => callback(e.target.result);
+        }
+
+        function updateDB(data, callback) {
+            const store = db.transaction(["customers"], "readwrite").objectStore("customers");
+            store.put(data).onsuccess = () => { render(); if(callback) callback(); };
+        }
+
+        function render() {
+            getAllCustomers(customers => {
+                const container = document.getElementById('list');
+                const search = document.getElementById('searchBox').value.toLowerCase();
+                let totalPaoa = 0, totalDena = 0;
+                container.innerHTML = '';
+
+                let filtered = customers.filter(c => c.name.toLowerCase().includes(search) || (c.phone && c.phone.includes(search)));
+                if (activeFilter === 'paoa') filtered = filtered.filter(c => c.amount > 0);
+                if (activeFilter === 'dena') filtered = filtered.filter(c => c.amount < 0);
+
+                const sorted = filtered.sort((a, b) => b.amount - a.amount);
+                customers.forEach(c => {
+                    if(c.amount > 0) totalPaoa += c.amount; else if(c.amount < 0) totalDena += Math.abs(c.amount);
+                });
+
+                sorted.forEach(c => {
+                    const isHighlighted = highlightedId === c.id;
+                    container.innerHTML += `
+                        <div onclick="openModal(${c.id})" class="glass-card p-5 flex justify-between items-center active:scale-[0.98] transition-all mb-4 ${isHighlighted ? 'active-update' : ''}">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl ${c.amount >= 0 ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'} flex items-center justify-center font-bold text-lg">
+                                    ${c.name[0]}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">${c.name}</h4>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                                        <i data-lucide="map-pin" class="w-3 h-3"></i> ${c.addr || 'N/A'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-black ${c.amount > 0 ? 'text-rose-500' : (c.amount < 0 ? 'text-emerald-500' : 'text-slate-300')}">
+                                    ${Math.abs(c.amount).toLocaleString()}
+                                </p>
+                                <span class="text-[9px] font-bold text-slate-300 uppercase">টাকা</span>
+                            </div>
+                        </div>`;
+                });
+                
+                document.getElementById('totalPaoa').innerText = totalPaoa.toLocaleString();
+                document.getElementById('totalDena').innerText = totalDena.toLocaleString();
+                lucide.createIcons();
+                if(highlightedId) setTimeout(() => { highlightedId = null; }, 3000);
+            });
+        }
+
+        function uploadBackup() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    try {
+                        const uploaded = JSON.parse(ev.target.result);
+                        const tx = db.transaction(["customers"], "readwrite");
+                        const store = tx.objectStore("customers");
+                        uploaded.forEach(c => store.put(c));
+                        tx.oncomplete = () => {
+                            render(); closeAllModals();
+                            localStorage.setItem('lastBackupDate', Date.now());
+                            document.getElementById('backupBanner').classList.remove('visible');
+                            showMessage("সফল!", "ডাটা রিস্টোর করা হয়েছে।", "database", "#10b981");
+                        };
+                    } catch (err) {
+                        showMessage("ব্যর্থ!", "সঠিক ব্যাকআপ ফাইল দিন।", "alert-octagon", "#f43f5e");
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function showMessage(title, desc, icon, color) {
+            document.getElementById('confTitle').innerText = title;
+            document.getElementById('confDesc').innerText = desc;
+            document.getElementById('confIcon').style.color = color;
+            document.getElementById('confIcon').style.backgroundColor = color + '15';
+            document.getElementById('confIconTag').setAttribute('data-lucide', icon);
+            document.getElementById('confBtnGroup').classList.add('hidden');
+            document.getElementById('confOkBtn').classList.remove('hidden');
+            document.getElementById('confirmModal').classList.add('active');
+            lucide.createIcons();
+        }
+
+        function showConfirm(title, desc, icon, actionFn, btnColor = '#4f46e5') {
+            document.getElementById('confTitle').innerText = title;
+            document.getElementById('confDesc').innerText = desc;
+            document.getElementById('confIcon').style.color = btnColor;
+            document.getElementById('confIcon').style.backgroundColor = btnColor + '15';
+            document.getElementById('confIconTag').setAttribute('data-lucide', icon);
+            const btn = document.getElementById('confActionBtn');
+            btn.style.backgroundColor = btnColor;
+            btn.onclick = () => { actionFn(); closeConfirm(); };
+            document.getElementById('confBtnGroup').classList.remove('hidden');
+            document.getElementById('confOkBtn').classList.add('hidden');
+            document.getElementById('confirmModal').classList.add('active');
+            lucide.createIcons();
+        }
+
+        function toggleFilter(type) { activeFilter = (activeFilter === type) ? null : type; render(); }
+        function toggleForm() { document.getElementById('formSheet').classList.toggle('active'); }
+        function closeAllModals() { document.querySelectorAll('.sheet').forEach(m => m.classList.remove('active')); }
+        function closeConfirm() { document.getElementById('confirmModal').classList.remove('active'); }
+        function closeOnOutsideClick(e, id) { if (e.target.id === id) e.target.classList.remove('active'); }
+
+        function setEntryType(type) {
+            entryType = type;
+            document.getElementById('typeAdd').className = type === 'add' ? "flex-1 py-3 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-lg" : "flex-1 py-3 rounded-xl bg-white text-slate-400 text-xs font-bold transition-all";
+            document.getElementById('typeSub').className = type === 'sub' ? "flex-1 py-3 rounded-xl bg-emerald-500 text-white text-xs font-bold shadow-lg" : "flex-1 py-3 rounded-xl bg-white text-slate-400 text-xs font-bold transition-all";
+        }
+
+        function confirmEntryAction() {
+            const name = document.getElementById('cName').value;
+            if(!name) return;
+            showConfirm("নতুন কাস্টমার", `${name}-কে কি সেভ করবেন?`, "user-plus", executeAddEntry);
+        }
+
+        function executeAddEntry() {
+            const amount = parseFloat(document.getElementById('cAmount').value) || 0;
+            const id = Date.now();
+            highlightedId = id;
+            const newCust = {
+                id: id, name: document.getElementById('cName').value, addr: document.getElementById('cAddr').value,
+                phone: document.getElementById('cPhone').value, amount: entryType === 'add' ? amount : -amount,
+                history: [{id: id, type: entryType, amount: amount, date: new Date().toLocaleString('bn-BD'), note: document.getElementById('cNote').value}]
+            };
+            updateDB(newCust, () => {
+                ['cName','cAddr','cPhone','cNote','cAmount'].forEach(id => document.getElementById(id).value = '');
+                closeAllModals();
+            });
+        }
+
+        function openModal(id) {
+            curId = id;
+            db.transaction(["customers"], "readonly").objectStore("customers").get(id).onsuccess = e => {
+                const c = e.target.result;
+                document.getElementById('mName').innerText = c.name;
+                document.getElementById('mSub').innerText = `${c.addr || 'N/A'} • ${c.phone || 'N/A'}`;
+                const hDiv = document.getElementById('mHistory'); hDiv.innerHTML = '';
+                [...c.history].reverse().forEach(h => {
+                    hDiv.innerHTML += `
+                        <div onclick="askDeleteHistory(${h.id})" class="p-4 rounded-2xl ${h.type==='add'?'bg-rose-50 text-rose-700':'bg-emerald-50 text-emerald-700'} text-xs font-bold mb-3 active:bg-white transition-all">
+                            <div class="flex justify-between mb-2 opacity-50 text-[9px] uppercase tracking-widest"><span>${h.date}</span><span>মুছতে ট্যাপ করুন</span></div>
+                            <div class="flex justify-between items-center"><span>${h.note || 'লেনদেন'}</span><span class="text-sm font-black">${h.type==='add'?'+':'-'} ${h.amount}</span></div>
+                        </div>`;
+                });
+                document.getElementById('hModal').classList.add('active');
+            };
+        }
+
+        function openUpdateModal(type) {
+            curAction = type;
+            document.getElementById('updateTitle').innerText = type === 'add' ? 'বাকি যোগ করুন' : 'জমা গ্রহণ করুন';
+            document.getElementById('updateConfirmBtn').className = `w-full text-white p-5 rounded-2xl font-bold shadow-lg ${type === 'add' ? 'bg-rose-500' : 'bg-emerald-500'}`;
+            document.getElementById('updateAmount').value = ''; 
+            document.getElementById('updateNote').value = '';
+            document.getElementById('updateModal').classList.add('active');
+        }
+
+        function askConfirmUpdate() {
+            const val = parseFloat(document.getElementById('updateAmount').value);
+            if(!val) return; 
+            highlightedId = curId;
+            showConfirm("হিসাব আপডেট", `${val} টাকা নিশ্চিত করছেন?`, "wallet", executeUpdate, curAction === 'add' ? '#f43f5e' : '#10b981');
+        }
+
+        function executeUpdate() {
+            const val = parseFloat(document.getElementById('updateAmount').value);
+            const store = db.transaction(["customers"], "readwrite").objectStore("customers");
+            store.get(curId).onsuccess = e => {
+                const c = e.target.result;
+                if(curAction === 'add') c.amount += val; else c.amount -= val;
+                c.history.push({id: Date.now(), type: curAction, amount: val, date: new Date().toLocaleString('bn-BD'), note: document.getElementById('updateNote').value});
+                updateDB(c, () => {
+                    closeAllModals();
+                });
+            };
+        }
+
+        function askDeleteHistory(histId) {
+            highlightedId = curId;
+            showConfirm("লেনদেন ডিলিট?", "এটি ব্যালেন্স থেকে সমন্বয় করা হবে।", "trash-2", () => {
+                const store = db.transaction(["customers"], "readwrite").objectStore("customers");
+                store.get(curId).onsuccess = e => {
+                    const c = e.target.result;
+                    const item = c.history.find(h => h.id === histId);
+                    if(item.type === 'add') c.amount -= item.amount; else c.amount += item.amount;
+                    c.history = c.history.filter(h => h.id !== histId);
+                    updateDB(c, () => {
+                        closeAllModals();
+                    });
+                };
+            }, "#f43f5e");
+        }
+
+        function askDeleteCustomer() {
+            showConfirm("কাস্টমার ডিলিট?", "এই কাস্টমারের সব তথ্য মুছে যাবে!", "user-minus", () => {
+                db.transaction(["customers"], "readwrite").objectStore("customers").delete(curId).onsuccess = () => { 
+                    closeAllModals();
+                    highlightedId = null; 
+                    render(); 
+                };
+            }, "#e11d48");
+        }
+    </script>
+</body>
+</html>
