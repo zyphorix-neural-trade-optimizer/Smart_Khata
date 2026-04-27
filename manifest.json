@@ -1,0 +1,17 @@
+{
+  "name": "Smart Khata Pro",
+  "short_name": "Smart Khata",
+  "description": "Digital Credit Ledger for Business",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#4f46e5",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3532/3532083.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
