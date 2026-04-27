@@ -16,29 +16,29 @@
         
         body { 
             font-family: 'Hind Siliguri', sans-serif; 
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            background:#ffffff;
             min-height: 100vh;
-            color: #1e293b; 
+            color: #333; 
         }
         
         .glass-card { 
-            background: rgba(255, 255, 255, 0.8); 
+            background: #fff; 
             backdrop-filter: blur(12px);
-            border-radius: 24px; 
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); 
+            border-radius: 10px; 
+            box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+            
         }
         
         .active-update {
             background: #f5f3ff !important;
-            border: 2px solid #6366f1 !important;
+            border: 1px solid #4843e6 !important;
             transform: scale(1.02);
         }
 
         .stat-card {
-            background: white; border-radius: 24px; padding: 20px;
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.08);
-            cursor: pointer; transition: 0.3s; border: 2px solid transparent;
+            border-radius: 10px; padding: 20px;
+            
+            cursor: pointer; transition: 0.3s; border: 1px solid transparent;
         }
         .stat-card.filter-active { border-color: #6366f1; background: #f5f3ff; }
 
@@ -55,10 +55,10 @@
         
         .fab { position: fixed; bottom: 30px; right: 20px; width: 64px; height: 64px; border-radius: 20px; background: #4f46e5; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 24px rgba(79, 70, 229, 0.3); z-index: 900; }
 
-        .modal-input { width: 100%; padding: 16px; background-color: #f8fafc; border: 2px solid transparent; border-radius: 16px; outline: none; transition: 0.3s; font-size: 16px; }
+        .modal-input { width: 100%; padding: 16px; background-color: #f8fafc; border: 1px solid #4843e6; border-radius: 12px; outline: none; transition: 0.3s; font-size: 16px; }
         .modal-input:focus { border-color: #6366f1; background-color: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
         
-        .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: white; border: 1px solid #e2e8f0; color: #64748b; transition: 0.2s; }
+        .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: white; border: 2px solid #4934eb; color: #4934eb; transition: 0.2s; }
         
         #backupBanner { display: none; }
         #backupBanner.visible { display: flex; animation: slideDown 0.5s ease; }
@@ -106,8 +106,8 @@
         </div>
     </div>
 
-    <div class="max-w-md mx-auto p-5 mt-4">
-        <header class="flex justify-between items-center pt-6 pb-8">
+    <div class="max-w-md mx-auto p-4 mt-0">
+        <header class="flex justify-between items-center pt-1 pb-5">
             <div>
                 <h1 id="shopNameDisplay" class="text-2xl font-black text-slate-900">স্মার্ট খাতা</h1>
                 <div class="flex items-center gap-1 mt-1">
@@ -119,20 +119,26 @@
         </header>
 
         <div class="grid grid-cols-2 gap-4 mb-8">
-            <div onclick="toggleFilter('paoa')" class="stat-card border-b-4 border-rose-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">পাওনা</p>
-                <h2 id="totalPaoa" class="text-2xl font-black text-slate-800">0</h2>
+            <div onclick="toggleFilter('paoa')" class="stat-card bg-rose-600 p-2 text-center ">
+                <p class="text-[15px] font-bold text-white uppercase mb-0">পাওনা</p>
+                <h2 id="totalPaoa" class="text-2xl font-black text-white">0</h2>
             </div>
-            <div onclick="toggleFilter('dena')" class="stat-card border-b-4 border-emerald-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">দেনা</p>
-                <h2 id="totalDena" class="text-2xl font-black text-slate-800">0</h2>
+            <div onclick="toggleFilter('dena')" class="stat-card bg-emerald-700 p-2 text-center">
+                <p class="text-[15px] font-bold text-white uppercase mb-0">দেনা</p>
+                <h2 id="totalDena" class="text-2xl font-black text-white">0</h2>
             </div>
         </div>
 
         <div class="relative mb-8">
-            <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300"></i>
-            <input type="text" id="searchBox" class="w-full p-5 glass-card border-none outline-none pl-14 text-sm font-medium" placeholder="খুঁজুন..." oninput="render()">
+        <div class="relative mb-8">
+        <div class="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
+        <i data-lucide="search" class="w-5 h-5 text-indigo-600 opacity-80"></i>
         </div>
+        
+        <input type="text" id="searchBox" class="w-full p-4 glass-card border-gray-300 outline-none pl-12 text-l font-medium focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="খুঁজুন..." oninput="render()">
+        </div>
+        
+        
 
         <div id="list" class="space-y-4"></div>
     </div>
@@ -165,8 +171,8 @@
                     <input type="text" id="cPhone" class="modal-input" placeholder="ফোন">
                 </div>
                 <div class="bg-slate-50 p-2 rounded-2xl flex gap-2">
-                    <button id="typeAdd" onclick="setEntryType('add')" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-lg">বাকি</button>
-                    <button id="typeSub" onclick="setEntryType('sub')" class="flex-1 py-3 rounded-xl bg-white text-slate-400 text-xs font-bold transition-all">জমা</button>
+                    <button id="typeAdd" onclick="setEntryType('add')" class="flex-1 py-3 rounded-xl bg-rose-600 text-white text-xs font-bold shadow-lg">বাকি</button>
+                    <button id="typeSub" onclick="setEntryType('sub')" class="flex-1 py-3 rounded-xl bg-white text-slate-600 text-xs font-bold transition-all">জমা</button>
                 </div>
                 <input type="number" id="cAmount" class="modal-input font-bold text-indigo-600 text-2xl text-center" placeholder="0.00">
                 <input type="text" id="cNote" class="modal-input" placeholder="নোট (ঐচ্ছিক)">
@@ -189,11 +195,11 @@
                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                 </button>
             </div>
-            <div class="grid grid-cols-2 gap-4 mb-10">
-                <button onclick="openUpdateModal('add')" class="bg-rose-500 text-white p-6 rounded-[24px] font-black shadow-lg flex flex-col items-center gap-2 active:scale-95 transition-all">
+            <div class="grid grid-cols-2 gap-4 mb-5">
+                <button onclick="openUpdateModal('add')" class="bg-rose-600 text-white p-2 rounded-[10px] font-black shadow-lg flex flex-col items-center gap-2 active:scale-95 transition-all">
                     <i data-lucide="plus-circle" class="w-6 h-6"></i> বাকি
                 </button>
-                <button onclick="openUpdateModal('sub')" class="bg-emerald-500 text-white p-6 rounded-[24px] font-black shadow-lg flex flex-col items-center gap-2 active:scale-95 transition-all">
+                <button onclick="openUpdateModal('sub')" class="bg-emerald-700 text-white p-2 rounded-[10px] font-black shadow-lg flex flex-col items-center gap-2 active:scale-95 transition-all">
                     <i data-lucide="check-circle" class="w-6 h-6"></i> জমা
                 </button>
             </div>
@@ -336,7 +342,7 @@
                                 <p class="text-lg font-black ${c.amount > 0 ? 'text-rose-500' : (c.amount < 0 ? 'text-emerald-500' : 'text-slate-300')}">
                                     ${Math.abs(c.amount).toLocaleString()}
                                 </p>
-                                <span class="text-[9px] font-bold text-slate-300 uppercase">টাকা</span>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase">টাকা</span>
                             </div>
                         </div>`;
                 });
@@ -443,7 +449,7 @@
                 [...c.history].reverse().forEach(h => {
                     hDiv.innerHTML += `
                         <div onclick="askDeleteHistory(${h.id})" class="p-4 rounded-2xl ${h.type==='add'?'bg-rose-50 text-rose-700':'bg-emerald-50 text-emerald-700'} text-xs font-bold mb-3 active:bg-white transition-all">
-                            <div class="flex justify-between mb-2 opacity-50 text-[9px] uppercase tracking-widest"><span>${h.date}</span><span>মুছতে ট্যাপ করুন</span></div>
+                            <div class="flex justify-between mb-2 opacity-70 text-[9px] uppercase tracking-widest"><span>${h.date}</span><span>মুছতে ট্যাপ করুন</span></div>
                             <div class="flex justify-between items-center"><span>${h.note || 'লেনদেন'}</span><span class="text-sm font-black">${h.type==='add'?'+':'-'} ${h.amount}</span></div>
                         </div>`;
                 });
@@ -454,7 +460,7 @@
         function openUpdateModal(type) {
             curAction = type;
             document.getElementById('updateTitle').innerText = type === 'add' ? 'বাকি যোগ করুন' : 'জমা গ্রহণ করুন';
-            document.getElementById('updateConfirmBtn').className = `w-full text-white p-5 rounded-2xl font-bold shadow-lg ${type === 'add' ? 'bg-rose-500' : 'bg-emerald-500'}`;
+            document.getElementById('updateConfirmBtn').className = `w-full text-white p-5 rounded-2xl font-bold shadow-lg ${type === 'add' ? 'bg-rose-600' : 'bg-emerald-700'}`;
             document.getElementById('updateAmount').value = ''; document.getElementById('updateNote').value = '';
             document.getElementById('updateModal').classList.add('active');
         }
@@ -498,7 +504,6 @@
             }, "#e11d48");
         }
 
-        // --- PWA & AUTO INSTALL LOGIC ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then(res => console.log("SW Registered")).catch(err => console.log("SW Failed", err));
