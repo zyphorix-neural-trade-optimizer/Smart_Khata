@@ -281,6 +281,7 @@
                 const overdue = customers.filter(c => {
                     if (c.amount <= 0 || !c.history || c.history.length === 0) return false;
                     const lastTx = c.history[c.history.length - 1];
+                    // শেষ লেনদেন যদি ইউজারের দেওয়া সময়ের চেয়ে পুরনো হয়
                     return lastTx.id < threshold;
                 });
 
@@ -289,8 +290,10 @@
                     return;
                 }
 
+                // CSV ফরম্যাট তৈরি (Bulk SMS প্যানেলের উপযোগী)
                 let csvContent = "Name,Phone,Due_Balance\n"; 
                 overdue.forEach(c => {
+                    // কমা থাকলে CSV নষ্ট হয়, তাই নাম ক্ল্যাপ করে নেওয়া
                     const safeName = c.name.replace(/,/g, ''); 
                     csvContent += `${safeName},${c.phone || ''},${c.amount}\n`;
                 });
@@ -651,33 +654,12 @@ _স্মার্ট খাতা অ্যাপ_`;
             }, "#e11d48");
         }
 
-        // --- সার্ভিস ওয়ার্কার আপডেট (অফলাইন ফিক্স) ---
+        // --- সার্ভিস ওয়ার্কার রেজিস্ট্রেশন আপডেট ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js', { scope: './' })
-                .then(registration => {
-                    console.log("SW Registered");
-                    // নতুন আপডেট থাকলে সাথে সাথে রিলোড করার জন্য
-                    registration.onupdatefound = () => {
-                        const installingWorker = registration.installing;
-                        installingWorker.onstatechange = () => {
-                            if (installingWorker.state === 'installed') {
-                                if (navigator.serviceWorker.controller) {
-                                    console.log('New content is available; please refresh.');
-                                }
-                            }
-                        };
-                    };
-                })
+                .then(res => console.log("SW Registered Successfully"))
                 .catch(err => console.log("SW Registration Failed", err));
-            });
-
-            // কন্ট্রোলার চেঞ্জ হলে পেজ রিলোড করা
-            let refreshing;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (refreshing) return;
-                window.location.reload();
-                refreshing = true;
             });
         }
     </script>
