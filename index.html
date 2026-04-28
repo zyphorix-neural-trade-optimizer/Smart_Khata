@@ -67,6 +67,24 @@
 </head>
 <body class="pb-24">
 
+<div id="activationOverlay" class="fixed inset-0 bg-slate-900 z-[5000] flex items-center justify-center p-6" style="display: none;">
+    <div class="bg-white w-full max-w-sm rounded-[32px] p-8 text-center shadow-2xl">
+        <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <i data-lucide="shield-check" class="w-10 h-10"></i>
+        </div>
+        <h2 class="text-2xl font-black text-slate-800 mb-2">সফটওয়্যার অ্যাক্টিভেশন</h2>
+        <p class="text-sm text-slate-500 mb-8 font-medium">অ্যাক্টিভেশন কোডটি দিয়ে আপনার কপিটি ভেরিফাই করুন।</p>
+        
+        <input type="password" id="activationKeyInput" class="modal-input text-center text-2xl tracking-[1em] mb-6" placeholder="****">
+        
+        <button onclick="checkActivation()" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">
+            অ্যাক্টিভ করুন
+        </button>
+        
+        <p class="mt-8 text-[10px] text-slate-400 uppercase font-bold tracking-widest">Powered by Smart Khata Pro</p>
+    </div>
+</div>
+    
     <div id="backupBanner" class="fixed top-0 left-0 w-full bg-amber-500 text-white p-4 z-[2000] flex justify-between items-center shadow-xl">
         <div class="flex items-center gap-3">
             <div class="bg-amber-600 p-2 rounded-xl">
@@ -222,6 +240,41 @@
     </div>
 
     <script>
+
+// আপনার সিক্রেট কোড এখানে সেট করুন
+    const SECRET_KEY = "SK-2026-MYM"; // আপনি চাইলে এটি পরিবর্তন করতে পারেন
+    
+    function initActivation() {
+    const isActivated = localStorage.getItem('isAppActivated');
+    if (isActivated !== 'true') {
+    document.getElementById('activationOverlay').style.display = 'flex';
+    // আইকন রেন্ডার করার জন্য
+    lucide.createIcons();
+    }
+    }
+    
+    function checkActivation() {
+    const input = document.getElementById('activationKeyInput').value;
+    if (input === SECRET_KEY) {
+    localStorage.setItem('isAppActivated', 'true');
+    // এনিমেশন দিয়ে বন্ধ হবে
+    document.getElementById('activationOverlay').style.opacity = '0';
+    setTimeout(() => {
+    document.getElementById('activationOverlay').style.display = 'none';
+    showMessage("অভিনন্দন!", "সফটওয়্যারটি সফলভাবে অ্যাক্টিভ হয়েছে।", "check-circle", "#10b981");
+    }, 300);
+    } else {
+    alert("ভুল কোড! সঠিক কোডটি দিন।");
+    document.getElementById('activationKeyInput').value = '';
+    }
+    }
+    
+    // উইন্ডো লোড হওয়ার সাথে সাথে চেক করবে
+    window.addEventListener('DOMContentLoaded', initActivation);
+    
+    
+
+        
         lucide.createIcons();
 
         let db;
