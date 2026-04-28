@@ -16,7 +16,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
         
         body { 
-            font-family: 'Hind Siliguri', sans-serif; 
+            font-family: 'roboto', sans-serif; 
             background:#ffffff;
             min-height: 100vh;
             color: #333; 
@@ -210,14 +210,30 @@
         <div class="sheet-content">
             <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
             <div class="flex justify-between items-start mb-8">
-                <div>
-                    <h2 id="mName" class="text-2xl font-black text-slate-800 tracking-tight">নাম</h2>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                        <h2 id="mName" class="text-2xl font-black text-slate-800 tracking-tight">নাম</h2>
+                        <button onclick="toggleEditProfile()" class="text-indigo-600 hover:bg-indigo-50 p-1.5 rounded-lg transition-all">
+                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                     <p id="mSub" class="text-[11px] text-slate-400 font-bold uppercase mt-1"></p>
                 </div>
                 <button onclick="askDeleteCustomer()" class="w-11 h-11 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center transition-all active:bg-rose-100">
                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                 </button>
             </div>
+
+            <div id="editProfileForm" class="hidden space-y-3 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <input type="text" id="editName" class="modal-input !py-3 !text-sm" placeholder="নাম">
+                <input type="text" id="editAddr" class="modal-input !py-3 !text-sm" placeholder="ঠিকানা">
+                <input type="text" id="editPhone" class="modal-input !py-3 !text-sm" placeholder="ফোন">
+                <div class="flex gap-2 mt-2">
+                    <button onclick="toggleEditProfile()" class="flex-1 py-2 bg-slate-200 text-slate-600 rounded-xl font-bold text-xs">বাতিল</button>
+                    <button onclick="saveProfileEdit()" class="flex-1 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs">সেভ করুন</button>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-4 mb-5">
                 <button onclick="openUpdateModal('add')" class="bg-rose-600 text-white p-2 rounded-[10px] font-black shadow-lg flex flex-col items-center gap-2 active:scale-95 transition-all">
                     <i data-lucide="plus-circle" class="w-6 h-6"></i> বাকি
@@ -365,7 +381,7 @@ _স্মার্ট খাতা অ্যাপ_`;
                 localStorage.setItem('lastBackupDate', Date.now());
                 return;
             }
-            const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
+            const oneWeekInMs = 2 * 24 * 60 * 60 * 1000;
             const diff = Date.now() - parseInt(lastBackup);
             if (diff >= oneWeekInMs) banner.classList.add('visible');
         }
@@ -579,6 +595,13 @@ _স্মার্ট খাতা অ্যাপ_`;
                 const c = e.target.result;
                 document.getElementById('mName').innerText = c.name;
                 document.getElementById('mSub').innerText = `${c.addr || 'N/A'} • ${c.phone || 'N/A'}`;
+                
+                // Set fields for edit form
+                document.getElementById('editName').value = c.name;
+                document.getElementById('editAddr').value = c.addr || '';
+                document.getElementById('editPhone').value = c.phone || '';
+                document.getElementById('editProfileForm').classList.add('hidden');
+
                 const hDiv = document.getElementById('mHistory'); hDiv.innerHTML = '';
                 [...c.history].reverse().forEach(h => {
                     hDiv.innerHTML += `
@@ -588,6 +611,33 @@ _স্মার্ট খাতা অ্যাপ_`;
                         </div>`;
                 });
                 document.getElementById('hModal').classList.add('active');
+            };
+        }
+
+        // --- Profile Edit Logic ---
+        function toggleEditProfile() {
+            const form = document.getElementById('editProfileForm');
+            form.classList.toggle('hidden');
+        }
+
+        function saveProfileEdit() {
+            const newName = document.getElementById('editName').value;
+            if(!newName) return;
+            
+            const store = db.transaction(["customers"], "readwrite").objectStore("customers");
+            store.get(curId).onsuccess = e => {
+                const c = e.target.result;
+                c.name = newName;
+                c.addr = document.getElementById('editAddr').value;
+                c.phone = document.getElementById('editPhone').value;
+                
+                updateDB(c, () => {
+                    document.getElementById('mName').innerText = c.name;
+                    document.getElementById('mSub').innerText = `${c.addr || 'N/A'} • ${c.phone || 'N/A'}`;
+                    document.getElementById('editProfileForm').classList.add('hidden');
+                    highlightedId = curId;
+                    render();
+                });
             };
         }
 
