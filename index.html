@@ -7,8 +7,9 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3532/3532083.png">
-
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1001/1001259.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1001/1001259.png">
+   
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -26,7 +27,6 @@
             backdrop-filter: blur(12px);
             border-radius: 10px; 
             box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
-            
         }
         
         .active-update {
@@ -37,7 +37,6 @@
 
         .stat-card {
             border-radius: 10px; padding: 20px;
-            
             cursor: pointer; transition: 0.3s; border: 1px solid transparent;
         }
         .stat-card.filter-active { border-color: #6366f1; background: #f5f3ff; }
@@ -74,17 +73,12 @@
         </div>
         <h2 class="text-2xl font-black text-slate-800 mb-2">সফটওয়্যার অ্যাক্টিভেশন</h2>
         <p class="text-sm text-slate-500 mb-8 font-medium">অ্যাক্টিভেশন কোডটি দিয়ে আপনার কপিটি ভেরিফাই করুন।</p>
-        
         <input type="password" id="activationKeyInput" class="modal-input text-center text-2xl tracking-[1em] mb-6" placeholder="****">
-        
-        <button onclick="checkActivation()" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">
-            অ্যাক্টিভ করুন
-        </button>
-        
+        <button onclick="checkActivation()" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">অ্যাক্টিভ করুন</button>
         <p class="mt-8 text-[10px] text-slate-400 uppercase font-bold tracking-widest">Powered by Smart Khata Pro</p>
     </div>
 </div>
-    
+
     <div id="backupBanner" class="fixed top-0 left-0 w-full bg-amber-500 text-white p-4 z-[2000] flex justify-between items-center shadow-xl">
         <div class="flex items-center gap-3">
             <div class="bg-amber-600 p-2 rounded-xl">
@@ -148,15 +142,11 @@
         </div>
 
         <div class="relative mb-8">
-        <div class="relative mb-8">
-        <div class="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
-        <i data-lucide="search" class="w-5 h-5 text-indigo-600 opacity-80"></i>
+            <div class="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                <i data-lucide="search" class="w-5 h-5 text-indigo-600 opacity-80"></i>
+            </div>
+            <input type="text" id="searchBox" class="w-full p-4 glass-card border-gray-300 outline-none pl-12 text-l font-medium focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="খুঁজুন..." oninput="render()">
         </div>
-        
-        <input type="text" id="searchBox" class="w-full p-4 glass-card border-gray-300 outline-none pl-12 text-l font-medium focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="খুঁজুন..." oninput="render()">
-        </div>
-        
-        
 
         <div id="list" class="space-y-4"></div>
     </div>
@@ -240,41 +230,68 @@
     </div>
 
     <script>
+        const SECRET_KEY = "Akash ";
 
-// আপনার সিক্রেট কোড এখানে সেট করুন
-    const SECRET_KEY = "SK-2026-MYM"; // আপনি চাইলে এটি পরিবর্তন করতে পারেন
-    
-    function initActivation() {
-    const isActivated = localStorage.getItem('isAppActivated');
-    if (isActivated !== 'true') {
-    document.getElementById('activationOverlay').style.display = 'flex';
-    // আইকন রেন্ডার করার জন্য
-    lucide.createIcons();
-    }
-    }
-    
-    function checkActivation() {
-    const input = document.getElementById('activationKeyInput').value;
-    if (input === SECRET_KEY) {
-    localStorage.setItem('isAppActivated', 'true');
-    // এনিমেশন দিয়ে বন্ধ হবে
-    document.getElementById('activationOverlay').style.opacity = '0';
-    setTimeout(() => {
-    document.getElementById('activationOverlay').style.display = 'none';
-    showMessage("অভিনন্দন!", "সফটওয়্যারটি সফলভাবে অ্যাক্টিভ হয়েছে।", "check-circle", "#10b981");
-    }, 300);
-    } else {
-    alert("ভুল কোড! সঠিক কোডটি দিন।");
-    document.getElementById('activationKeyInput').value = '';
-    }
-    }
-    
-    // উইন্ডো লোড হওয়ার সাথে সাথে চেক করবে
-    window.addEventListener('DOMContentLoaded', initActivation);
-    
-    
+        function initActivation() {
+            const isActivated = localStorage.getItem('isAppActivated');
+            if (isActivated !== 'true') {
+                document.getElementById('activationOverlay').style.display = 'flex';
+                lucide.createIcons();
+            }
+        }
 
-        
+        function checkActivation() {
+            const input = document.getElementById('activationKeyInput').value;
+            if (input === SECRET_KEY) {
+                localStorage.setItem('isAppActivated', 'true');
+                document.getElementById('activationOverlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('activationOverlay').style.display = 'none';
+                    showMessage("অভিনন্দন!", "সফটওয়্যারটি সফলভাবে অ্যাক্টিভ হয়েছে।", "check-circle", "#10b981");
+                }, 300);
+            } else {
+                alert("ভুল কোড! সঠিক কোডটি দিন।");
+                document.getElementById('activationKeyInput').value = '';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initActivation);
+
+        // --- WHATSAPP MESSAGE LOGIC ---
+        function sendWhatsAppMessage(customerName, phone, addedAmount, previousBalance, type, note) {
+            const shopName = document.getElementById('shopNameDisplay').innerText || "স্মার্ট খাতা"; 
+            if(!phone) return;
+
+            let cleanPhone = phone.replace(/\D/g, '');
+            if (!cleanPhone.startsWith('88')) cleanPhone = '88' + cleanPhone;
+
+            const added = parseFloat(addedAmount);
+            const prev = parseFloat(previousBalance);
+            const currentTotal = type === 'add' ? (prev + added) : (prev - added);
+            const today = new Date().toLocaleDateString('bn-BD'); 
+            const details = note && note.trim() !== "" ? note : "লেনদেন";
+
+            const message = 
+`*বাকি হিসাবের রশিদ* 📝
+--------------------------
+*তারিখ:* ${today}
+*দোকান:* ${shopName}
+*কাস্টমার:* ${customerName}
+--------------------------
+*বিবরণ:* ${details}
+--------------------------
+*আগের মোট বাকি:* ${prev.toLocaleString()} /-
+*আজকের ${type === 'add' ? 'বাকি' : 'জমা'}:* ${added.toLocaleString()} /-
+--------------------------
+*বর্তমান সর্বমোট বাকি: ${currentTotal.toLocaleString()} /-*
+--------------------------
+ধন্যবাদান্তে,
+*${shopName}*
+_স্মার্ট খাতা অ্যাপ_`;
+
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
         lucide.createIcons();
 
         let db;
@@ -479,16 +496,26 @@
 
         function executeAddEntry() {
             const amount = parseFloat(document.getElementById('cAmount').value) || 0;
+            const phone = document.getElementById('cPhone').value;
+            const note = document.getElementById('cNote').value;
+            const name = document.getElementById('cName').value;
             const id = Date.now();
             highlightedId = id;
             const newCust = {
-                id: id, name: document.getElementById('cName').value, addr: document.getElementById('cAddr').value,
-                phone: document.getElementById('cPhone').value, amount: entryType === 'add' ? amount : -amount,
-                history: [{id: id, type: entryType, amount: amount, date: new Date().toLocaleString('bn-BD'), note: document.getElementById('cNote').value}]
+                id: id, name: name, addr: document.getElementById('cAddr').value,
+                phone: phone, amount: entryType === 'add' ? amount : -amount,
+                history: [{id: id, type: entryType, amount: amount, date: new Date().toLocaleString('bn-BD'), note: note}]
             };
             updateDB(newCust, () => {
                 ['cName','cAddr','cPhone','cNote','cAmount'].forEach(id => document.getElementById(id).value = '');
                 closeAllModals();
+                if(phone) {
+                    setTimeout(() => {
+                        showConfirm("মেসেজ পাঠান", "কাস্টমারকে কি হোয়াটসঅ্যাপে রশিদ পাঠাবেন?", "message-circle", () => {
+                            sendWhatsAppMessage(name, phone, amount, 0, entryType, note);
+                        }, "#25D366");
+                    }, 500);
+                }
             });
         }
 
@@ -526,12 +553,23 @@
 
         function executeUpdate() {
             const val = parseFloat(document.getElementById('updateAmount').value);
+            const note = document.getElementById('updateNote').value;
             const store = db.transaction(["customers"], "readwrite").objectStore("customers");
             store.get(curId).onsuccess = e => {
                 const c = e.target.result;
+                const prevBalance = c.amount;
                 if(curAction === 'add') c.amount += val; else c.amount -= val;
-                c.history.push({id: Date.now(), type: curAction, amount: val, date: new Date().toLocaleString('bn-BD'), note: document.getElementById('updateNote').value});
-                updateDB(c, () => closeAllModals());
+                c.history.push({id: Date.now(), type: curAction, amount: val, date: new Date().toLocaleString('bn-BD'), note: note});
+                updateDB(c, () => {
+                    closeAllModals();
+                    if(c.phone) {
+                        setTimeout(() => {
+                            showConfirm("মেসেজ পাঠান", "হোয়াটসঅ্যাপে রশিদের মেসেজ পাঠাতে চান?", "message-circle", () => {
+                                sendWhatsAppMessage(c.name, c.phone, val, prevBalance, curAction, note);
+                            }, "#25D366");
+                        }, 500);
+                    }
+                });
             };
         }
 
@@ -569,8 +607,8 @@
             deferredPrompt = e;
             setTimeout(() => {
                 showConfirm(
-                    "হোম স্ক্রিনে যুক্ত করুন 🥳", 
-                    "অ্যাপের মতো দ্রুত ব্যবহার করতে 'Bakir Khata' হোম স্ক্রিনে সেভ করুন।", 
+                    "হোম স্ক্রিনে যুক্ত করুন 😑", 
+                    "অ্যাপের মতো দ্রুত ব্যবহার করতে 'Smart Khata' হোম স্ক্রিনে সেভ করুন।", 
                     "smartphone", 
                     () => {
                         deferredPrompt.prompt();
