@@ -293,39 +293,51 @@
         window.addEventListener('DOMContentLoaded', initActivation);
 
         function exportOverdueCSV() {
-            const days = parseInt(document.getElementById('overdueDaysInput').value) || 30;
-            const threshold = Date.now() - (days * 24 * 60 * 60 * 1000);
-            
-            getAllCustomers(customers => {
-                const overdue = customers.filter(c => {
-                    if (c.amount <= 0 || !c.history || c.history.length === 0) return false;
-                    const lastTx = c.history[c.history.length - 1];
-                    return lastTx.id < threshold;
-                });
-
-                if (overdue.length === 0) {
-                    showMessage("দুঃখিত!", `${days} দিনের পুরনো কোনো বকেয়া কাস্টমার পাওয়া যায়নি।`, "alert-triangle", "#f43f5e");
-                    return;
-                }
-
-                let csvContent = "Name,Phone,Due_Balance\n"; 
-                overdue.forEach(c => {
-                    const safeName = c.name.replace(/,/g, ''); 
-                    csvContent += `${safeName},${c.phone || ''},${c.amount}\n`;
-                });
-
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.setAttribute("href", url);
-                link.setAttribute("download", `Bokeya_List_${days}_Days.csv`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                showMessage("সফল!", "CSV ফাইলটি ডাউনলোড হয়েছে। বাল্ক এসএমএস সাইটে এটি আপলোড করুন।", "file-check", "#10b981");
-            });
+        const days = parseInt(document.getElementById('overdueDaysInput').value) || 30;
+        const threshold = Date.now() - (days * 24 * 60 * 60 * 1000);
+        
+        getAllCustomers(customers => {
+        const overdue = customers.filter(c => {
+        if (c.amount <= 0 || !c.history || c.history.length === 0) return false;
+        const lastTx = c.history[c.history.length - 1];
+        return lastTx.id < threshold;
+        });
+        
+        if (overdue.length === 0) {
+        showMessage("দুঃখিত!", `${days} দিনের পুরনো কোনো বকেয়া কাস্টমার পাওয়া যায়নি।`, "alert-triangle", "#f43f5e");
+        return;
         }
+        
+        // CSV ডাটা তৈরি (হেডারসহ)
+        let csvContent = "নাম,মোবাইল নাম্বার,বকেয়া টাকা\n"; 
+        overdue.forEach(c => {
+        const safeName = c.name.replace(/,/g, ''); // কমা সরিয়ে ফেলা যাতে কলাম ভেঙে না যায়
+        csvContent += `${safeName},${c.phone || ''},${c.amount}\n`;
+        });
+        
+        // বাংলা ফিক্স করার জন্য Blob মেথড ব্যবহার
+        // \ufeff (BOM) এক্সেলকে বলে দেয় যে এটি UTF-8 এনকোডেড ফাইল
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+        const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+        
+        // ডাউনলোড লিঙ্ক তৈরি
+        const link = document.createElement("a");
+        if (navigator.msSaveBlob) { // IE 10+ এর জন্য
+        navigator.msSaveBlob(blob, `Bokeya_List_${days}_Days.csv`);
+        } else {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Bokeya_List_${days}_Days.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        }
+        
+        showMessage("সফল!", "CSV ফাইলটি ডাউনলোড হয়েছে। বাল্ক এসএমএস সাইটে এটি আপলোড করুন।", "file-check", "#10b981");
+        });
+        }
+        
 
         function sendWhatsAppMessage(customerName, phone, addedAmount, previousBalance, type, note) {
             const shopName = document.getElementById('shopNameDisplay').innerText || "স্মার্ট খাতা"; 
