@@ -265,7 +265,8 @@
             <h3 id="updateTitle" class="text-xl font-black mb-6 text-slate-800">আপডেট</h3>
             <div class="space-y-4">
                 <input type="number" id="updateAmount" class="modal-input font-bold text-3xl text-center text-indigo-600" placeholder="0.00">
-                <input type="text" id="updateNote" class="modal-input" placeholder="সংক্ষিপ্ত নোট">
+                <textarea id="updateNote" class="modal-input h-24 resize-none pt-3" placeholder="বিস্তারিত নোট লিখুন..."></textarea>
+                
                 <button id="updateConfirmBtn" onclick="askConfirmUpdate()" class="w-full text-white p-5 rounded-2xl font-bold shadow-lg transition-all active:scale-95">কনফার্ম</button>
             </div>
         </div>
@@ -712,7 +713,7 @@
                     hDiv.innerHTML += `
                         <div onclick="askDeleteHistory(${h.id})" class="p-4 rounded-2xl ${h.type==='add'?'bg-rose-50 text-rose-700':'bg-emerald-50 text-emerald-700'} text-xs font-bold mb-3 active:bg-white transition-all">
                             <div class="flex justify-between mb-2 opacity-70 text-[9px] uppercase tracking-widest"><span>${h.date}</span><span>মুছতে ট্যাপ করুন</span></div>
-                            <div class="flex justify-between items-center"><span>${h.note || 'লেনদেন'}</span><span class="text-sm font-black">${h.type==='add'?'+':'-'} ${h.amount}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-justify w-[75%]>${h.note || 'লেনদেন'}</span><span class="text-sm font-black">${h.type==='add'?'+':'-'} ${h.amount}</span></div>
                         </div>`;
                 });
                 document.getElementById('hModal').classList.add('active');
