@@ -50,7 +50,7 @@
             background: white; width: 100%; max-width: 480px; 
             border-top-left-radius: 32px; border-top-right-radius: 32px; 
             padding: 32px; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-            max-height: 90vh; overflow-y: auto;
+            max-height: 85vh; overflow-y: auto;
         }
 
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -74,7 +74,7 @@
         <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <i data-lucide="shield-check" class="w-10 h-10"></i>
         </div>
-        <h2 class="text-2xl font-black text-slate-800 mb-2">সফটওয়্যার অ্যাক্টিভেশন</h2>
+        <h2 class="text-2xl font-black text-slate-800 mb-2">সফটওয়্যায় অ্যাক্টিভেশন</h2>
         <p class="text-sm text-slate-500 mb-8 font-medium">অ্যাক্টিভেশন কোডটি দিয়ে আপনার কপিটি ভেরিফাই করুন।</p>
         <input type="password" id="activationKeyInput" class="modal-input text-center text-2xl tracking-[1em] mb-6" placeholder="****">
         <button onclick="checkActivation()" class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">অ্যাক্টিভ করুন</button>
@@ -159,12 +159,22 @@
             </div>
         </div>
 
-        <div class="relative mb-8">
-            <div class="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
-                <i data-lucide="search" class="w-5 h-5 text-indigo-600 opacity-80"></i>
+        <div class="relative mb-2 flex gap-2">
+            <div class="relative flex-1">
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                    <i data-lucide="search" class="w-5 h-5 text-indigo-600 opacity-80"></i>
+                </div>
+                <input type="text" id="searchBox" class="w-full p-4 glass-card border-gray-300 outline-none pl-12 text-l font-medium focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="খুঁজুন..." oninput="render()">
             </div>
-            
-            <input type="text" id="searchBox" class="w-full p-4 glass-card border-gray-300 outline-none pl-12 text-l font-medium focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="খুঁজুন..." oninput="render()">
+            <button onclick="toggleDayFilter()" id="dayFilterBtn" class="icon-btn !border-indigo-600 !text-indigo-600 mt-1 " title="দিন অনুযায়ী ফিল্টার">
+                <i data-lucide="filter" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <div id="dayFilterInputSection" class="hidden mb-6 animate-[slideUp_0.3s_ease-out] bg-indigo-50 p-4 rounded-2xl flex items-center gap-3">
+            <p class="text-[10px] font-bold text-indigo-600 uppercase flex-1">কত দিনের পুরনো কাস্টমার খুঁজছেন?</p>
+            <input type="number" id="filterDaysInput" oninput="render()" class="w-16 p-2 rounded-xl border-none outline-none font-bold text-center text-indigo-600" placeholder="0">
+            <button onclick="clearDayFilter()" class="text-rose-500 p-1"><i data-lucide="x-circle" class="w-5 h-5"></i></button>
         </div>
 
         <div id="list" class="space-y-4"></div>
@@ -264,8 +274,47 @@
         </div>
     </div>
 
+<div id="shareSheet" class="sheet" onclick="closeOnOutsideClick(event, 'shareSheet')">
+    <div class="sheet-content">
+        <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+        <h3 class="text-xl font-black mb-6 text-slate-800 flex items-center gap-2">
+            <i data-lucide="share-2" class="w-5 h-5 text-indigo-600"></i> শেয়ার করুন
+        </h3>
+        
+        <div class="space-y-6">
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2 block">মেসেজের ধরন সিলেক্ট করুন</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="btnRashid" onclick="setShareType('Rashid')" class="py-4 rounded-2xl border-2 border-slate-600 bg-slate-500 text-slate-800 font-bold text-sm transition-all hover:bg-indigo-600">রশিদ পাঠান</button>
+                    <button id="btnTagada" onclick="setShareType('Tagada')" class="py-4 rounded-2xl border-2 border-slate-600 bg-slate-500 text-slate-800 font-bold text-sm transition-all hover:bg-indigo-600">তাগাদা পাঠান</button>
+                </div>
+            </div>
+
+            <div id="methodSection" class="hidden animate-[slideUp_0.3s_ease-out]">
+                <hr class="border-slate-100 mb-6">
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-3 block text-center">এখন মাধ্যম সিলেক্ট করুন</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="finalAction('WP')" class="flex flex-col items-center gap-2 p-5 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 active:scale-95 transition-all">
+                        <div class="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg">
+                            <i data-lucide="message-circle" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-xs font-black">WhatsApp</span>
+                    </button>
+                    <button onclick="finalAction('SMS')" class="flex flex-col items-center gap-2 p-5 rounded-2xl bg-blue-50 text-blue-700 border border-blue-100 active:scale-95 transition-all">
+                        <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-lg">
+                            <i data-lucide="message-square" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-xs font-black">সাধারণ SMS</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
     <script>
         const SECRET_KEY = "Akash ";
+        let isDayFilterActive = false; // New variable
 
         function initActivation() {
             const isActivated = localStorage.getItem('isAppActivated');
@@ -308,21 +357,17 @@
         return;
         }
         
-        // CSV ডাটা তৈরি (হেডারসহ)
         let csvContent = "নাম,মোবাইল নাম্বার,বকেয়া টাকা\n"; 
         overdue.forEach(c => {
-        const safeName = c.name.replace(/,/g, ''); // কমা সরিয়ে ফেলা যাতে কলাম ভেঙে না যায়
+        const safeName = c.name.replace(/,/g, '');
         csvContent += `${safeName},${c.phone || ''},${c.amount}\n`;
         });
         
-        // বাংলা ফিক্স করার জন্য Blob মেথড ব্যবহার
-        // \ufeff (BOM) এক্সেলকে বলে দেয় যে এটি UTF-8 এনকোডেড ফাইল
         const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
         const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
         
-        // ডাউনলোড লিঙ্ক তৈরি
         const link = document.createElement("a");
-        if (navigator.msSaveBlob) { // IE 10+ এর জন্য
+        if (navigator.msSaveBlob) {
         navigator.msSaveBlob(blob, `Bokeya_List_${days}_Days.csv`);
         } else {
         const url = URL.createObjectURL(blob);
@@ -338,40 +383,50 @@
         });
         }
         
-
-        function sendWhatsAppMessage(customerName, phone, addedAmount, previousBalance, type, note) {
-            const shopName = document.getElementById('shopNameDisplay').innerText || "স্মার্ট খাতা"; 
-            if(!phone) return;
-
-            let cleanPhone = phone.replace(/\D/g, '');
-            if (!cleanPhone.startsWith('88')) cleanPhone = '88' + cleanPhone;
-
-            const added = parseFloat(addedAmount);
-            const prev = parseFloat(previousBalance);
-            const currentTotal = type === 'add' ? (prev + added) : (prev - added);
-            const today = new Date().toLocaleDateString('bn-BD'); 
-            const details = note && note.trim() !== "" ? note : "লেনদেন";
-
-            const message = 
-`*বাকি হিসাবের রশিদ* 📝
---------------------------
-*তারিখ:* ${today}
-*দোকান:* ${shopName}
-*কাস্টমার:* ${customerName}
---------------------------
-*বিবরণ:* ${details}
---------------------------
-*আগের মোট বাকি:* ${prev.toLocaleString()} /-
-*আজকের ${type === 'add' ? 'বাকি' : 'জমা'}:* ${added.toLocaleString()} /-
---------------------------
-*বর্তমান সর্বমোট বাকি: ${currentTotal.toLocaleString()} /-*
---------------------------
-ধন্যবাদান্তে,
-*${shopName}*
-_স্মার্ট খাতা অ্যাপ_`;
-
-            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
-        }
+  function sendWhatsAppMessage(customerName, phone, addedAmount, previousBalance, type, note) {
+  const shopName = document.getElementById('shopNameDisplay').innerText || "স্মার্ট খাতা"; 
+  if(!phone) return;
+  
+  let cleanPhone = phone.replace(/\D/g, '');
+  if (!cleanPhone.startsWith('88')) cleanPhone = '88' + cleanPhone;
+  
+  const added = parseFloat(addedAmount);
+  const prev = parseFloat(previousBalance);
+  
+  // বর্তমান মোট হিসাব
+  const currentTotal = type === 'add' ? (prev + added) : (prev - added);
+  const today = new Date().toLocaleDateString('bn-BD'); 
+  const details = note && note.trim() !== "" ? note : "লেনদেন";
+  
+  // ব্যালেন্স অনুযায়ী টেক্সট নির্ধারণ (পজিটিভ হলে বাকি, নেগেটিভ হলে জমা)
+  const statusText = currentTotal >= 0 ? "বাকি" : "অগ্রিম জমা";
+  const prevStatus = prev >= 0 ? "বাকি" : "অগ্রিম জমা";
+  
+  // মাইনাস চিহ্ন ছাড়া টাকার পরিমাণ
+  const absTotal = Math.abs(currentTotal).toLocaleString();
+  const absPrev = Math.abs(prev).toLocaleString();
+  
+  const message = 
+  `*বাকি হিসাবের রশিদ* 📝
+  --------------------------
+  *তারিখ:* ${today}
+  *দোকান:* ${shopName}
+  *কাস্টমার:* ${customerName}
+  --------------------------
+  *বিবরণ:* ${details}
+  --------------------------
+  *আগের মোট ${prevStatus}:* ${absPrev} /-
+  *আজকের ${type === 'add' ? 'বাকি' : 'জমা'}:* ${added.toLocaleString()} /-
+  --------------------------
+  *বর্তমান সর্বমোট ${statusText}: ${absTotal} /-*
+  --------------------------
+  ধন্যবাদান্তে,
+  *${shopName}*
+  _স্মার্ট খাতা অ্যাপ_`;
+  
+  window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+  }
+  
 
         lucide.createIcons();
 
@@ -389,6 +444,30 @@ _স্মার্ট খাতা অ্যাপ_`;
         };
 
         let curId = null, curAction = null, entryType = 'add', highlightedId = null, activeFilter = null;
+
+        // --- Filter Functions ---
+        function toggleDayFilter() {
+            const section = document.getElementById('dayFilterInputSection');
+            const btn = document.getElementById('dayFilterBtn');
+            isDayFilterActive = !isDayFilterActive;
+            
+            if(isDayFilterActive) {
+                section.classList.remove('hidden');
+                btn.classList.add('bg-indigo-600', '!text-white', '!border-indigo-600');
+            } else {
+                clearDayFilter();
+            }
+            lucide.createIcons();
+        }
+
+        function clearDayFilter() {
+            isDayFilterActive = false;
+            document.getElementById('filterDaysInput').value = '';
+            document.getElementById('dayFilterInputSection').classList.add('hidden');
+            document.getElementById('dayFilterBtn').className = "icon-btn mt-1 !border-indigo-600 !text-indigo-600 ";
+            render();
+            lucide.createIcons();
+        }
 
         function checkBackupStatus() {
             const lastBackup = localStorage.getItem('lastBackupDate');
@@ -465,6 +544,7 @@ _স্মার্ট খাতা অ্যাপ_`;
             getAllCustomers(customers => {
                 const container = document.getElementById('list');
                 const search = document.getElementById('searchBox').value.toLowerCase();
+                const filterDays = parseInt(document.getElementById('filterDaysInput').value);
                 let totalPaoa = 0, totalDena = 0;
                 container.innerHTML = '';
                 
@@ -475,6 +555,16 @@ _স্মার্ট খাতা অ্যাপ_`;
                 if (activeFilter === 'paoa') filtered = filtered.filter(c => c.amount > 0);
                 if (activeFilter === 'dena') filtered = filtered.filter(c => c.amount < 0);
                 
+                // Applying the Days Filter
+                if (isDayFilterActive && !isNaN(filterDays)) {
+                    const threshold = Date.now() - (filterDays * 24 * 60 * 60 * 1000);
+                    filtered = filtered.filter(c => {
+                        if (!c.history || c.history.length === 0) return false;
+                        const lastTx = c.history[c.history.length - 1];
+                        return lastTx.id < threshold && c.amount > 0;
+                    });
+                }
+
                 const sorted = filtered.sort((a, b) => b.amount - a.amount);
                 customers.forEach(c => {
                     if(c.amount > 0) totalPaoa += c.amount; else if(c.amount < 0) totalDena += Math.abs(c.amount);
@@ -484,9 +574,7 @@ _স্মার্ট খাতা অ্যাপ_`;
                     container.innerHTML += `
                         <div onclick="openModal(${c.id})" class="glass-card p-5 flex justify-between items-center active:scale-[0.98] transition-all mb-4 ${isHighlighted ? 'active-update' : ''}">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-2xl ${c.amount >= 0 ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'} flex items-center justify-center font-bold text-lg">
-                                    ${c.name[0]}
-                                </div>
+                                
                                 <div>
                                     <h4 class="font-bold text-slate-800">${c.name}</h4>
                                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
@@ -494,11 +582,16 @@ _স্মার্ট খাতা অ্যাপ_`;
                                     </p>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <p class="text-lg font-black ${c.amount > 0 ? 'text-rose-500' : (c.amount < 0 ? 'text-emerald-500' : 'text-slate-300')}">
-                                    ${Math.abs(c.amount).toLocaleString()}
-                                </p>
-                                <span class="text-[9px] font-bold text-slate-400 uppercase">টাকা</span>
+                            <div class="flex items-center gap-3 text-right">
+                                <div>
+                                    <p class="text-lg font-black ${c.amount > 0 ? 'text-rose-500' : (c.amount < 0 ? 'text-emerald-500' : 'text-slate-300')}">
+                                        ${Math.abs(c.amount).toLocaleString()}
+                                    </p>
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase">টাকা</span>
+                                </div>
+                                <button onclick="event.stopPropagation(); openShareFlow(${c.id})" class="w-10 h-10 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-xl active:bg-indigo-100 transition-all">
+                                    <i data-lucide="share-2" class="w-5 h-5"></i>
+                                </button>
                             </div>
                         </div>`;
                 });
@@ -612,7 +705,6 @@ _স্মার্ট খাতা অ্যাপ_`;
                 document.getElementById('mName').innerText = c.name;
                 document.getElementById('mSub').innerText = `${c.addr || 'N/A'} • ${c.phone || 'N/A'}`;
                 
-                // Set fields for edit form
                 document.getElementById('editName').value = c.name;
                 document.getElementById('editAddr').value = c.addr || '';
                 document.getElementById('editPhone').value = c.phone || '';
@@ -630,7 +722,6 @@ _স্মার্ট খাতা অ্যাপ_`;
             };
         }
 
-        // --- Profile Edit Logic ---
         function toggleEditProfile() {
             const form = document.getElementById('editProfileForm');
             form.classList.toggle('hidden');
@@ -715,7 +806,118 @@ _স্মার্ট খাতা অ্যাপ_`;
             }, "#e11d48");
         }
 
-        // --- PWA লজিক (Service Worker & Install Prompt) ---
+        let currentShareType = null; 
+        let activeShareCust = null;
+
+        function openShareFlow(id) {
+            db.transaction(["customers"], "readonly").objectStore("customers").get(id).onsuccess = e => {
+                activeShareCust = e.target.result;
+                if(!activeShareCust.phone) {
+                    showMessage("ফোন নাম্বার নেই!", "শেয়ার করার জন্য কাস্টমারের ফোন নাম্বার প্রয়োজন।", "alert-circle", "#f43f5e");
+                    return;
+                }
+                
+                currentShareType = null;
+                document.getElementById('methodSection').classList.add('hidden');
+                document.getElementById('btnRashid').className = "py-4 rounded-2xl border-1 border-indigo-600 bg-indigo-100 text-black font-bold text-sm transition-all";
+                document.getElementById('btnTagada').className = "py-4 rounded-2xl border-1 border-indigo-600 bg-indigo-100 text-black font-bold text-sm transition-all";
+                
+                document.getElementById('shareSheet').classList.add('active');
+                lucide.createIcons();
+            };
+        }
+
+        function setShareType(type) {
+            currentShareType = type;
+            const bRashid = document.getElementById('btnRashid');
+            const bTagada = document.getElementById('btnTagada');
+            const mSection = document.getElementById('methodSection');
+            
+            if(type === 'Rashid') {
+                bRashid.className = "py-4 rounded-2xl border-2 border-indigo-600 bg-indigo-600 text-white font-bold text-sm shadow-sm scale-[1.02] transition-all";
+                bTagada.className = "py-4 rounded-2xl border-2 border-indigo-600 bg-slate-50 text-black font-bold text-sm transition-all";
+            } else {
+                bTagada.className = "py-4 rounded-2xl border-2 border-indigo-600 bg-indigo-600 text-white font-bold text-sm shadow-sm scale-[1.02] transition-all";
+                bRashid.className = "py-4 rounded-2xl border-2 border-indigo-600 bg-slate-50 text-black font-bold text-sm transition-all";
+            }
+            
+            mSection.classList.remove('hidden');
+            lucide.createIcons();
+        }
+function finalAction(method) {
+    const c = activeShareCust;
+    const shopName = document.getElementById('shopNameDisplay').innerText;
+    const today = new Date().toLocaleDateString('bn-BD');
+    
+    const lastTx = c.history && c.history.length > 0 ? c.history[c.history.length - 1] : null;
+    const added = lastTx ? lastTx.amount : 0;
+    const type = lastTx ? lastTx.type : 'add';
+    const details = lastTx && lastTx.note ? lastTx.note : "লেনদেন";
+    
+    const currentTotal = c.amount;
+    const prev = type === 'add' ? (currentTotal - added) : (currentTotal + added);
+
+    // ব্যালেন্স অনুযায়ী "বাকি" বা "জমা" টেক্সট নির্ধারণ
+    const statusText = currentTotal >= 0 ? "বাকি" : "জমা";
+    const absTotal = Math.abs(currentTotal).toLocaleString();
+    const absPrev = Math.abs(prev).toLocaleString();
+    const prevStatus = prev >= 0 ? "বাকি" : "জমা";
+
+    let phone = c.phone.replace(/\D/g, '');
+
+    if (method === "WP") {
+        let wpMessage = "";
+        if (currentShareType === "Rashid") {
+            wpMessage = 
+`*লেনদেন রশিদ* 📝
+--------------------------
+*তারিখ:* ${today}
+*দোকান:* ${shopName}
+*কাস্টমার:* ${c.name}
+--------------------------
+*বিবরণ:* ${details}
+--------------------------
+*আগের মোট ${prevStatus}:* ${absPrev} /-
+*আজকের ${type === 'add' ? 'বাকি' : 'জমা'}:* ${added.toLocaleString()} /-
+--------------------------
+*বর্তমান সর্বমোট ${statusText}: ${absTotal} /-*
+--------------------------
+ধন্যবাদান্তে,
+*${shopName}*`;
+        } else {
+            wpMessage = 
+`*বকেয়া পাওনা তাগাদা* 🔔
+--------------------------
+*দোকান:* ${shopName}
+*তারিখ:* ${today}
+--------------------------
+জনাব *${c.name}*, 
+আপনার নিকট আমাদের দোকানের বর্তমান মোট *${statusText}: ${absTotal} /-*
+
+অনুগ্রহ করে দ্রুত যোগাযোগ করার জন্য অনুরোধ করা হলো।
+
+ধন্যবাদান্তে,
+*${shopName}*`;
+        }
+
+        if (!phone.startsWith('88')) phone = '88' + phone;
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(wpMessage)}`, '_blank');
+
+    } else {
+        // সাধারণ SMS (নাম ছাড়া এবং পজিটিভ/নেগেটিভ লজিকসহ)
+        let smsMessage = "";
+        if (currentShareType === "Rashid") {
+            smsMessage = `${shopName}\nআগের ${prevStatus}:${absPrev}\nআজ:${added}(${type === 'add' ? 'বাকি' : 'জমা'})\nমোট ${statusText}:${absTotal}\nধন্যবাদ`;
+        } else {
+            smsMessage = `${shopName}\nআপনার মোট ${statusText}: ${absTotal} টাকা। দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
+        }
+        
+        window.location.href = `sms:${phone}?body=${encodeURIComponent(smsMessage)}`;
+    }
+    document.getElementById('shareSheet').classList.remove('active');
+}
+
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js', { scope: './' })
@@ -728,8 +930,6 @@ _স্মার্ট খাতা অ্যাপ_`;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            
-            // ৫ সেকেন্ড পরে অটোমেটিক প্রম্পট দেখাবে
             setTimeout(() => {
                 if (deferredPrompt) {
                     showConfirm(
