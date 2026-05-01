@@ -907,9 +907,9 @@ function finalAction(method) {
         // সাধারণ SMS (নাম ছাড়া এবং পজিটিভ/নেগেটিভ লজিকসহ)
         let smsMessage = "";
         if (currentShareType === "Rashid") {
-            smsMessage = `${shopName}\nআগের ${prevStatus}:${absPrev}\nআজ:${added}(${type === 'add' ? 'বাকি' : 'জমা'})\nমোট ${statusText}:${absTotal}\nধন্যবাদ`;
+            smsMessage = `${shopName}\nআগের ${prevStatus}:${absPrev}\nআজ:${added}(${type === 'add' ? 'বাকি' : 'জমা'})\nমোট ${statusText}:${absTotal} `;
         } else {
-            smsMessage = `${shopName}\nআপনার মোট ${statusText}: ${absTotal} টাকা। দ্রুত পরিশোধ করুন। ধন্যবাদ।`;
+            smsMessage = `${shopName}\nমোট ${statusText}: ${absTotal}\nদ্রুত পরিশোধ করুন।`;
         }
         
         window.location.href = `sms:${phone}?body=${encodeURIComponent(smsMessage)}`;
