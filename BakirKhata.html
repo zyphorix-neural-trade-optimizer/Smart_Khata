@@ -16,12 +16,15 @@
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
         
         body { 
-            font-family: 'Hind Siliguri', sans-serif; 
+            font-family: 'roboto', sans-serif; 
             background:#ffffff;
             min-height: 100vh;
             color: #333; 
         }
+        ::placeholder {
+        color: #555 !important;
         
+        }
         .glass-card { 
             background: #fff; 
             backdrop-filter: blur(12px);
@@ -54,7 +57,7 @@
         
         .fab { position: fixed; bottom: 30px; right: 20px; width: 64px; height: 64px; border-radius: 20px; background: #4f46e5; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 24px rgba(79, 70, 229, 0.3); z-index: 900; }
 
-        .modal-input { width: 100%; padding: 16px; background-color: #f8fafc; border: 1px solid #4843e6; border-radius: 12px; outline: none; transition: 0.3s; font-size: 16px; }
+        .modal-input { width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #4843e6; border-radius: 12px; outline: none; transition: 0.3s; font-size: 16px; }
         .modal-input:focus { border-color: #6366f1; background-color: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
         
         .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: white; border: 2px solid #4934eb; color: #4934eb; transition: 0.2s; }
@@ -94,9 +97,9 @@
 
     <div id="settingsSheet" class="sheet" onclick="closeOnOutsideClick(event, 'settingsSheet')">
         <div class="sheet-content">
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
-            <h3 class="text-xl font-black mb-6 flex items-center gap-2"><i data-lucide="sliders" class="w-5 h-5"></i> সেটিংস</h3>
-            <div class="space-y-6">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-3"></div>
+            <h3 class="text-xl font-black mb-2 flex items-center gap-2"><i data-lucide="sliders" class="w-5 h-5"></i> সেটিংস</h3>
+            <div class="space-y-3">
                 <div class="space-y-3">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">দোকানের নাম</label>
                     <div class="flex gap-2">
@@ -105,7 +108,7 @@
                     </div>
                 </div>
 
-              
+                <hr class="border-slate-100">
 
                 <div class="space-y-3">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">বকেয়া ফিল্টার (বাল্ক এসএমএস এর জন্য)</label>
@@ -118,7 +121,7 @@
                     <p class="text-[10px] text-slate-400 font-medium">*এই CSV ফাইলটি বাল্ক এসএমএস সাইটে আপলোড করে একবারে সবাইকে মেসেজ পাঠাতে পারবেন।</p>
                 </div>
                 
-                
+                <hr class="border-slate-100">
 
                 <div class="space-y-3">
                     <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">ডাটা ম্যানেজমেন্ট</label>
@@ -160,6 +163,7 @@
             <div class="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
                 <i data-lucide="search" class="w-5 h-5 text-indigo-600 opacity-80"></i>
             </div>
+            
             <input type="text" id="searchBox" class="w-full p-4 glass-card border-gray-300 outline-none pl-12 text-l font-medium focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="খুঁজুন..." oninput="render()">
         </div>
 
@@ -188,10 +192,10 @@
             <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
             <h3 class="text-2xl font-black mb-6 text-slate-800">নতুন এন্ট্রি</h3>
             <div class="space-y-4">
-                <input type="text" id="cName" class="modal-input" placeholder="কাস্টমারের নাম">
+                <input type="text" id="cName" class="modal-input" placeholder="কাস্টমারের নাম" >
                 <div class="grid grid-cols-2 gap-3">
                     <input type="text" id="cAddr" class="modal-input" placeholder="ঠিকানা">
-                    <input type="text" id="cPhone" class="modal-input" placeholder="ফোন">
+                    <input type="number" id="cPhone" class="modal-input" placeholder="ফোন">
                 </div>
                 <div class="bg-slate-50 p-2 rounded-2xl flex gap-2">
                     <button id="typeAdd" onclick="setEntryType('add')" class="flex-1 py-3 rounded-xl bg-rose-600 text-white text-xs font-bold shadow-lg">বাকি</button>
@@ -210,14 +214,30 @@
         <div class="sheet-content">
             <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
             <div class="flex justify-between items-start mb-8">
-                <div>
-                    <h2 id="mName" class="text-2xl font-black text-slate-800 tracking-tight">নাম</h2>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                        <h2 id="mName" class="text-2xl font-black text-slate-800 tracking-tight">নাম</h2>
+                        <button onclick="toggleEditProfile()" class="text-indigo-600 hover:bg-indigo-50 p-1.5 rounded-lg transition-all">
+                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                     <p id="mSub" class="text-[11px] text-slate-400 font-bold uppercase mt-1"></p>
                 </div>
                 <button onclick="askDeleteCustomer()" class="w-11 h-11 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center transition-all active:bg-rose-100">
                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                 </button>
             </div>
+
+            <div id="editProfileForm" class="hidden space-y-3 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <input type="text" id="editName" class="modal-input !py-3 !text-sm" placeholder="নাম">
+                <input type="text" id="editAddr" class="modal-input !py-3 !text-sm" placeholder="ঠিকানা">
+                <input type="number" id="editPhone" class="modal-input !py-3 !text-sm" placeholder="ফোন">
+                <div class="flex gap-2 mt-2">
+                    <button onclick="toggleEditProfile()" class="flex-1 py-2 bg-slate-200 text-slate-600 rounded-xl font-bold text-xs">বাতিল</button>
+                    <button onclick="saveProfileEdit()" class="flex-1 py-2 bg-indigo-600 text-white rounded-xl font-bold text-xs">সেভ করুন</button>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-4 mb-5">
                 <button onclick="openUpdateModal('add')" class="bg-rose-600 text-white p-2 rounded-[10px] font-black shadow-lg flex flex-col items-center gap-2 active:scale-95 transition-all">
                     <i data-lucide="plus-circle" class="w-6 h-6"></i> বাকি
@@ -272,46 +292,53 @@
 
         window.addEventListener('DOMContentLoaded', initActivation);
 
-        // --- বাল্ক এসএমএস এক্সপোর্ট লজিক ---
         function exportOverdueCSV() {
-            const days = parseInt(document.getElementById('overdueDaysInput').value) || 30;
-            const threshold = Date.now() - (days * 24 * 60 * 60 * 1000);
-            
-            getAllCustomers(customers => {
-                const overdue = customers.filter(c => {
-                    if (c.amount <= 0 || !c.history || c.history.length === 0) return false;
-                    const lastTx = c.history[c.history.length - 1];
-                    // শেষ লেনদেন যদি ইউজারের দেওয়া সময়ের চেয়ে পুরনো হয়
-                    return lastTx.id < threshold;
-                });
-
-                if (overdue.length === 0) {
-                    showMessage("দুঃখিত!", `${days} দিনের পুরনো কোনো বকেয়া কাস্টমার পাওয়া যায়নি।`, "alert-triangle", "#f43f5e");
-                    return;
-                }
-
-                // CSV ফরম্যাট তৈরি (Bulk SMS প্যানেলের উপযোগী)
-                let csvContent = "Name,Phone,Due_Balance\n"; 
-                overdue.forEach(c => {
-                    // কমা থাকলে CSV নষ্ট হয়, তাই নাম ক্ল্যাপ করে নেওয়া
-                    const safeName = c.name.replace(/,/g, ''); 
-                    csvContent += `${safeName},${c.phone || ''},${c.amount}\n`;
-                });
-
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.setAttribute("href", url);
-                link.setAttribute("download", `Bokeya_List_${days}_Days.csv`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                showMessage("সফল!", "CSV ফাইলটি ডাউনলোড হয়েছে। বাল্ক এসএমএস সাইটে এটি আপলোড করুন।", "file-check", "#10b981");
-            });
+        const days = parseInt(document.getElementById('overdueDaysInput').value) || 30;
+        const threshold = Date.now() - (days * 24 * 60 * 60 * 1000);
+        
+        getAllCustomers(customers => {
+        const overdue = customers.filter(c => {
+        if (c.amount <= 0 || !c.history || c.history.length === 0) return false;
+        const lastTx = c.history[c.history.length - 1];
+        return lastTx.id < threshold;
+        });
+        
+        if (overdue.length === 0) {
+        showMessage("দুঃখিত!", `${days} দিনের পুরনো কোনো বকেয়া কাস্টমার পাওয়া যায়নি।`, "alert-triangle", "#f43f5e");
+        return;
         }
+        
+        // CSV ডাটা তৈরি (হেডারসহ)
+        let csvContent = "নাম,মোবাইল নাম্বার,বকেয়া টাকা\n"; 
+        overdue.forEach(c => {
+        const safeName = c.name.replace(/,/g, ''); // কমা সরিয়ে ফেলা যাতে কলাম ভেঙে না যায়
+        csvContent += `${safeName},${c.phone || ''},${c.amount}\n`;
+        });
+        
+        // বাংলা ফিক্স করার জন্য Blob মেথড ব্যবহার
+        // \ufeff (BOM) এক্সেলকে বলে দেয় যে এটি UTF-8 এনকোডেড ফাইল
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+        const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+        
+        // ডাউনলোড লিঙ্ক তৈরি
+        const link = document.createElement("a");
+        if (navigator.msSaveBlob) { // IE 10+ এর জন্য
+        navigator.msSaveBlob(blob, `Bokeya_List_${days}_Days.csv`);
+        } else {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Bokeya_List_${days}_Days.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        }
+        
+        showMessage("সফল!", "CSV ফাইলটি ডাউনলোড হয়েছে। বাল্ক এসএমএস সাইটে এটি আপলোড করুন।", "file-check", "#10b981");
+        });
+        }
+        
 
-        // --- হোয়াটসঅ্যাপ মেসেজ লজিক ---
         function sendWhatsAppMessage(customerName, phone, addedAmount, previousBalance, type, note) {
             const shopName = document.getElementById('shopNameDisplay').innerText || "স্মার্ট খাতা"; 
             if(!phone) return;
@@ -370,7 +397,7 @@ _স্মার্ট খাতা অ্যাপ_`;
                 localStorage.setItem('lastBackupDate', Date.now());
                 return;
             }
-            const oneWeekInMs = 7 * 24 * 60 * 60 * 1000;
+            const oneWeekInMs = 2 * 24 * 60 * 60 * 1000;
             const diff = Date.now() - parseInt(lastBackup);
             if (diff >= oneWeekInMs) banner.classList.add('visible');
         }
@@ -584,6 +611,13 @@ _স্মার্ট খাতা অ্যাপ_`;
                 const c = e.target.result;
                 document.getElementById('mName').innerText = c.name;
                 document.getElementById('mSub').innerText = `${c.addr || 'N/A'} • ${c.phone || 'N/A'}`;
+                
+                // Set fields for edit form
+                document.getElementById('editName').value = c.name;
+                document.getElementById('editAddr').value = c.addr || '';
+                document.getElementById('editPhone').value = c.phone || '';
+                document.getElementById('editProfileForm').classList.add('hidden');
+
                 const hDiv = document.getElementById('mHistory'); hDiv.innerHTML = '';
                 [...c.history].reverse().forEach(h => {
                     hDiv.innerHTML += `
@@ -593,6 +627,33 @@ _স্মার্ট খাতা অ্যাপ_`;
                         </div>`;
                 });
                 document.getElementById('hModal').classList.add('active');
+            };
+        }
+
+        // --- Profile Edit Logic ---
+        function toggleEditProfile() {
+            const form = document.getElementById('editProfileForm');
+            form.classList.toggle('hidden');
+        }
+
+        function saveProfileEdit() {
+            const newName = document.getElementById('editName').value;
+            if(!newName) return;
+            
+            const store = db.transaction(["customers"], "readwrite").objectStore("customers");
+            store.get(curId).onsuccess = e => {
+                const c = e.target.result;
+                c.name = newName;
+                c.addr = document.getElementById('editAddr').value;
+                c.phone = document.getElementById('editPhone').value;
+                
+                updateDB(c, () => {
+                    document.getElementById('mName').innerText = c.name;
+                    document.getElementById('mSub').innerText = `${c.addr || 'N/A'} • ${c.phone || 'N/A'}`;
+                    document.getElementById('editProfileForm').classList.add('hidden');
+                    highlightedId = curId;
+                    render();
+                });
             };
         }
 
@@ -654,27 +715,41 @@ _স্মার্ট খাতা অ্যাপ_`;
             }, "#e11d48");
         }
 
+        // --- PWA লজিক (Service Worker & Install Prompt) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(res => console.log("SW Registered")).catch(err => console.log("SW Failed", err));
+                navigator.serviceWorker.register('./sw.js', { scope: './' })
+                .then(res => console.log("SW Registered"))
+                .catch(err => console.log("SW Failed", err));
             });
-        }
-    </script>
-</body>
-</html>
-n askDeleteCustomer() {
-            showConfirm("কাস্টমার ডিলিট?", "এই কাস্টমারের সব তথ্য মুছে যাবে!", "user-minus", () => {
-                db.transaction(["customers"], "readwrite").objectStore("customers").delete(curId).onsuccess = () => { 
-                    closeAllModals(); highlightedId = null; render(); 
-                };
-            }, "#e11d48");
         }
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(res => console.log("SW Registered")).catch(err => console.log("SW Failed", err));
-            });
-        }
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // ৫ সেকেন্ড পরে অটোমেটিক প্রম্পট দেখাবে
+            setTimeout(() => {
+                if (deferredPrompt) {
+                    showConfirm(
+                        "হোম স্ক্রিনে যুক্ত করুন 📱", 
+                        "অ্যাপের মতো দ্রুত ব্যবহার করতে 'স্মার্ট খাতা' হোম স্ক্রিনে সেভ করুন।", 
+                        "smartphone", 
+                        () => {
+                            deferredPrompt.prompt();
+                            deferredPrompt.userChoice.then((choice) => {
+                                deferredPrompt = null;
+                            });
+                        }
+                    );
+                }
+            }, 5000);
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
+        });
     </script>
 </body>
 </html>
