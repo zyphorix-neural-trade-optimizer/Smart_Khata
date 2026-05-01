@@ -196,9 +196,9 @@
 
     <div id="formSheet" class="sheet" onclick="closeOnOutsideClick(event, 'formSheet')">
         <div class="sheet-content">
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8"></div>
-            <h3 class="text-2xl font-black mb-6 text-slate-800">নতুন এন্ট্রি</h3>
-            <div class="space-y-4">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-2"></div>
+            <h3 class="text-2xl font-black text-center mb-6 text-slate-800">নতুন এন্ট্রি</h3>
+            <div class="space-y-3">
                 <input type="text" id="cName" class="modal-input" placeholder="কাস্টমারের নাম" >
                 <div class="grid grid-cols-2 gap-3">
                     <input type="text" id="cAddr" class="modal-input" placeholder="ঠিকানা">
@@ -209,7 +209,8 @@
                     <button id="typeSub" onclick="setEntryType('sub')" class="flex-1 py-3 rounded-xl bg-white text-slate-600 text-xs font-bold transition-all">জমা</button>
                 </div>
                 <input type="number" id="cAmount" class="modal-input font-bold text-indigo-600 text-2xl text-center" placeholder="0.00">
-                <input type="text" id="cNote" class="modal-input" placeholder="নোট (ঐচ্ছিক)">
+                <textarea id="cNote" class="modal-input h-15 resize-none pt-3" placeholder="বিস্তারিত নোট লিখুন..."></textarea>
+            
                 <button onclick="confirmEntryAction()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-bold mt-2 shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
                     <i data-lucide="check-circle-2" class="w-5 h-5"></i> সেভ করুন
                 </button>
