@@ -3,331 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InstantDrop Pro | Official</title>
+    <title>NID Agent Tool - GitHub Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --bg: #0b0f1a; --card: #161e2d; --accent: #00d2ff; --text: #ffffff; --sub-text: #94a3b8; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .container { width: 95%; max-width: 1100px; margin: 20px auto; }
-        #receiver-ui { display: none; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 850px) { #receiver-ui { display: grid; grid-template-columns: 350px 1fr; height: 620px; } }
-        .glass { background: var(--card); border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 50px rgba(0,0,0,0.3); padding: 25px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-        .qr-section { text-align: center; }
-        #qrcode { background: #fff; padding: 12px; border-radius: 18px; margin: 15px auto; border: 4px solid var(--accent); width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; }
-        
-        #conn-alert { position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 15px 25px; border-radius: 15px; font-weight: bold; transform: translateX(200%); transition: 0.5s; z-index: 1000; }
-        #conn-alert.show { transform: translateX(0); }
-
-        .toggle-box { margin-top: 15px; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; justify-content: center; cursor: pointer; }
-        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--accent); }
-        input:checked + .slider:before { transform: translateX(14px); }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .stat-card { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; text-align: center; }
-        .stat-card h4 { margin: 0; font-size: 10px; color: var(--sub-text); text-transform: uppercase; }
-        .stat-card p { margin: 5px 0 0; font-size: 18px; font-weight: bold; color: var(--accent); }
-
-        .file-container { flex: 1; overflow-y: auto; margin-top: 15px; }
-        .file-item { display: flex; align-items: center; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 15px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
-        .file-info { flex: 1; margin-left: 10px; overflow: hidden; }
-        .file-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .dl-btn { background: var(--accent); color: #000; border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; text-decoration: none; font-size: 12px; }
-        .sent-icon { color: #4ade80; font-size: 20px; font-weight: bold; margin-right: 5px; }
-
-        .btn-upload { background: linear-gradient(135deg, #00d2ff, #3a7bd5); color: white; border: none; padding: 18px; border-radius: 50px; font-size: 18px; width: 100%; cursor: pointer; margin-top: 15px; transition: 0.3s; }
-        .btn-upload:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; opacity: 0.6; }
-
-        .progress-wrapper { position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; background: rgba(255,255,255,0.05); }
-        .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: 0.2s; box-shadow: 0 0 10px var(--accent); }
-        .perc-label { position: absolute; bottom: 8px; right: 15px; font-size: 10px; font-weight: bold; color: var(--accent); display: none; }
-
-        .btn-corner-print { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); color: var(--accent); border: 1px solid rgba(0,210,255,0.3); width: 40px; height: 40px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.3s; }
-        .btn-copy-link { background: rgba(0, 210, 255, 0.1); color: var(--accent); border: 1px dashed var(--accent); padding: 12px; border-radius: 15px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; font-size: 14px; transition: 0.3s; }
-
-        #print-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card); padding: 30px; border-radius: 24px; width: 320px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .modal-input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 10px; border: 1px solid #334155; background: #0b0f1a; color: #fff; text-align: center; box-sizing: border-box; }
-
-       @media print {
-           @page { size: auto; margin: 0; }
-           html, body { background: #0b0f1a !important; margin: 0 !important; padding: 0 !important; height: 100vh !important; overflow: hidden !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-           .container, #conn-alert, #print-modal { display: none !important; }
-           #print-area { display: flex !important; height: 100vh !important; width: 100vw !important; align-items: center; justify-content: center; background: #0b0f1a !important; position: fixed; top: 0; left: 0; z-index: 9999; }
-           .print-card { background: #161e2d !important; border: 2px solid #00d2ff !important; padding: 40px; border-radius: 40px; text-align: center; width: 320px; position: relative; box-shadow: none !important; }
-           #print-qr-img { width: 210px; height: 210px; margin: 20px auto; display: block; padding: 15px; background: #fff !important; border-radius: 20px; }
-           .print-shop-name { font-size: 32px; font-weight: bold; color: #fff !important; margin-bottom: 5px; }
-           .print-footer { font-size: 18px; margin-top: 20px; color: #00d2ff !important; font-weight: bold; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
-       }
+        :root { --primary: #818cf8; --danger: #f43f5e; --bg-dark: #0f172a; --glass-bg: rgba(30, 41, 59, 0.7); --text-main: #f8fafc; --text-dim: #94a3b8; --success: #10b981; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text-main); display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        .setup-box { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 24px; width: 100%; max-width: 420px; }
+        h2 { font-size: 22px; text-align: center; margin-bottom: 25px; color: var(--primary); }
+        #qr-container { background: white; padding: 10px; border-radius: 15px; margin: 0 auto 20px auto; display: none; justify-content: center; align-items: center; width: 140px; height: 140px; }
+        #connection-status { text-align: center; font-size: 12px; margin-bottom: 15px; color: var(--text-dim); font-weight: bold; }
+        .input-group { margin-bottom: 15px; }
+        .upload-label { font-size: 13px; color: var(--text-dim); display: block; margin-bottom: 8px; }
+        .file-wrapper { position: relative; width: 100%; height: 50px; background: rgba(15, 23, 42, 0.5); border: 2px dashed #334155; border-radius: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .file-wrapper input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
+        .placeholder-text { color: var(--text-dim); font-size: 13px; z-index: 2; }
+        .btn-group { display: flex; gap: 12px; margin-top: 25px; }
+        button { flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
+        .btn-dl { background: #7c3aed; color: white; }
+        .btn-pr { background: #334155; color: white; }
+        .btn-clear { background: var(--danger); color: white; margin-top: 15px; width: 100%; padding: 12px; border-radius: 12px; font-size: 13px; }
+        #preview-container { display: none; margin-top: 20px; zoom: 0.25; border: 1px solid #444; }
+        #pdf-content { width: 210mm; height: 296.5mm; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .nid-row { display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%; margin: 10mm 0; min-height: 60mm; }
+        .nid-card { width: 90mm; height: auto; border: 0.5px solid #000; display: none; }
+        .seal-side { width: 60mm; display: none; transform: rotate(-90deg); }
+        @media print { .setup-box { display: none !important; } #preview-container { display: block !important; position: absolute; top: 0; left: 0; zoom: 1 !important; width: 210mm; } }
     </style>
 </head>
-<body onclick="enableSound()">
+<body>
 
-<div id="conn-alert">📱 কাস্টমার কানেক্ট হয়েছে!</div>
-
-<div id="print-area" style="display: none;">
-    <div class="print-card">
-        <div class="print-shop-name" id="p-shop-name">Your Shop</div>
-        <div style="font-size: 18px; color: #fff; margin-bottom: 5px; opacity: 0.8;">Scan to Send Files</div>
-        <img id="print-qr-img" src="" alt="QR">
-        <div class="print-footer">InstantDrop Pro</div>
-    </div>
-</div>
-
-<div id="print-modal">
-    <div class="modal-content">
-        <h3 style="margin:0; color:var(--accent)">Print Shop QR</h3>
-        <input type="text" id="shopNameInput" class="modal-input" placeholder="দোকানের নাম লিখুন">
-        <button class="btn-upload" style="font-size: 16px; padding: 12px;" onclick="triggerPrint()">প্রিন্ট করুন</button>
-        <p style="font-size: 13px; color: var(--sub-text); margin-top: 15px; cursor: pointer;" onclick="closeModal()">বাতিল</p>
-    </div>
-</div>
-
-<div class="container">
-    <div id="receiver-ui">
-        <div class="glass qr-section">
-            <button class="btn-corner-print" onclick="openModal()" title="Print QR Code">🖨️</button>
-            <div style="font-size: 18px; font-weight: bold; margin-top: 10px;">⚡ <span style="color:var(--accent)">Instant</span>Drop Pro</div>
-            <div id="qrcode"></div>
-            <button class="btn-copy-link" id="copyBtn" onclick="copyShareLink()">🔗 Copy Share Link</button>
-            <label class="toggle-box">
-                <div class="switch"><input type="checkbox" id="fixedToggle" onchange="toggleFixedID()"><span class="slider"></span></div>
-                <span style="font-size: 11px; font-weight: bold;">FIXED ID</span>
-            </label>
-            <div class="stats-grid">
-                <div class="stat-card"><h4>Received</h4><p id="r-count">0</p></div>
-                <div class="stat-card"><h4>Status</h4><p id="status-text" style="font-size:11px; color:#f43f5e">OFFLINE</p></div>
-            </div>
-            <span id="r-perc" class="perc-label">0%</span>
-            <div class="progress-wrapper"><div id="p-overlay" class="progress-bar"></div></div>
-        </div>
-        <div class="glass">
-            <h3 style="margin:0">History</h3>
-            <div class="file-container" id="r-file-list"><div id="empty" style="text-align:center; color:var(--sub-text); margin-top:50px;">ফাইল আসার অপেক্ষায়...</div></div>
-        </div>
-    </div>
-
-    <div id="sender-ui" style="display:none; text-align: center;">
-        <div class="glass" style="max-width: 450px; margin: 0 auto;">
-            <h2 style="color:var(--accent); margin-top: 0;">Send Files</h2>
-            <div class="stats-grid" style="margin-bottom: 15px;">
-                <div class="stat-card" style="grid-column: span 1;"><h4>Sent</h4><p id="s-count">0</p></div>
-                <div class="stat-card" style="grid-column: span 1;"><h4>Status</h4><p id="m-status" style="font-size:12px; color:#f43f5e">Disconnected</p></div>
-            </div>
-            <button class="btn-upload" id="upBtn" onclick="document.getElementById('fileInput').click()" disabled>কানেক্ট হচ্ছে...</button>
-            <input type="file" id="fileInput" multiple accept="image/*,video/*,.pdf,.doc,.docx,.zip" hidden>
-            
-            <span id="s-perc" class="perc-label">0%</span>
-            <div class="progress-wrapper"><div id="p-overlay-mobile" class="progress-bar"></div></div>
-        </div>
-        <div class="glass" style="margin-top:20px; max-width: 450px; margin-left: auto; margin-right: auto;">
-            <h3 style="margin:0; text-align: left;">Sent History</h3>
-            <div class="file-container" id="s-file-list" style="text-align: left;"></div>
-        </div>  
-    </div>
-</div>
-
-<script>
-    let currentShareUrl = "";
-    const params = new URLSearchParams(window.location.search);
-    const shopId = params.get('id');
-    const notifySound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-    const connSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
-    let peer, activeConn, totalRcv = 0, totalSnd = 0;
-
-    const peerConfig = {
-        config: {
-            'iceServers': [
-                { url: 'stun:stun.l.google.com:19302' },
-                { url: 'stun:stun1.l.google.com:19302' }
-            ]
-        }
-    };
-
-    function enableSound() { [notifySound, connSound].forEach(s => { s.play().then(()=>s.pause()).catch(()=>{}); }); }
-
-    const isFixedEnabled = localStorage.getItem('isFixedEnabled') === 'true';
-    document.getElementById('fixedToggle').checked = isFixedEnabled;
-    const myFixedID = localStorage.getItem('mySavedID');
-
-    if (!shopId) {
-        peer = isFixedEnabled && myFixedID ? new Peer(myFixedID, peerConfig) : new Peer(undefined, peerConfig);
-    } else {
-        peer = new Peer(undefined, peerConfig);
-    }
-
-    peer.on('open', (id) => {
-        if (!shopId) {
-            document.getElementById('receiver-ui').style.display = 'grid';
-            if(isFixedEnabled) localStorage.setItem('mySavedID', id);
-            currentShareUrl = window.location.origin + window.location.pathname + "?id=" + id;
-            document.getElementById("qrcode").innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), { text: currentShareUrl, width: 180, height: 180 });
-            document.getElementById('status-text').innerText = "READY ✅";
-            document.getElementById('status-text').style.color = "#4ade80";
-        } else {
-            document.getElementById('sender-ui').style.display = 'block';
-            autoConnect(shopId);
-        }
-    });
-
-    function copyShareLink() {
-        if(!currentShareUrl) return;
-        navigator.clipboard.writeText(currentShareUrl);
-        const btn = document.getElementById('copyBtn');
-        const oldText = btn.innerText;
-        btn.innerText = "✅ Link Copied!";
-        btn.style.color = "#4ade80";
-        setTimeout(() => { btn.innerText = oldText; btn.style.color = "var(--accent)"; }, 2000);
-    }
-
-    function openModal() { document.getElementById('print-modal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('print-modal').style.display = 'none'; }
-    
-    function triggerPrint() {
-        const name = document.getElementById('shopNameInput').value || "Our Shop";
-        const qrCanvas = document.querySelector('#qrcode canvas');
-        const qrImg = document.querySelector('#qrcode img');
-        document.getElementById('p-shop-name').innerText = name;
-        if(qrCanvas) {
-            document.getElementById('print-qr-img').src = qrCanvas.toDataURL("image/png");
-        } else if(qrImg && qrImg.src) {
-            document.getElementById('print-qr-img').src = qrImg.src;
-        }
-        document.querySelector('.container').style.display = 'none';
-        document.getElementById('print-area').style.display = 'flex';
-        setTimeout(() => { 
-            window.print(); 
-            document.querySelector('.container').style.display = '';
-            document.getElementById('print-area').style.display = 'none';
-            closeModal();
-        }, 500);
-    }
-
-    // --- RECEIVER CONNECTION LOGIC ---
-    peer.on('connection', (conn) => {
-        // নতুন কানেকশন আসলে আগের কানেকশনটা থাকলে সেটা বন্ধ করে দিবে
-        if (activeConn) { activeConn.close(); }
+    <div class="setup-box">
+        <h2>NID Agent Tool</h2>
+        <div id="qr-container"></div>
+        <div id="connection-status">Initializing Secure Link...</div>
         
-        activeConn = conn;
-        connSound.play().catch(()=>{});
-        document.getElementById('conn-alert').classList.add('show');
-        setTimeout(() => document.getElementById('conn-alert').classList.remove('show'), 3000);
-        document.getElementById('status-text').innerText = "CONNECTED 📱";
-        document.getElementById('status-text').style.color = "#00d2ff";
+        <div class="input-group"><span class="upload-label">Front Side</span>
+            <div class="file-wrapper" id="fWrap"><span class="placeholder-text" id="fLabel">Select or Scan</span><input type="file" id="fIn" accept="image/*"></div>
+        </div>
+
+        <div class="input-group"><span class="upload-label">Back Side</span>
+            <div class="file-wrapper" id="bWrap"><span class="placeholder-text" id="bLabel">Select or Scan</span><input type="file" id="bIn" accept="image/*"></div>
+        </div>
+
+        <div class="input-group"><span class="upload-label">Agent Seal</span>
+            <div style="display: flex; gap: 10px;">
+                <div class="file-wrapper" style="flex: 3; height: 40px;"><span class="placeholder-text" id="sLabel" style="font-size: 11px;">Update Seal</span><input type="file" id="sIn" accept="image/*"></div>
+                <button id="removeSeal" style="background: var(--danger); color: white; display: none; padding: 5px 10px; border-radius: 10px; font-size: 11px;" onclick="clearSeal()">Remove</button>
+            </div>
+        </div>
         
-        conn.on('data', (data) => {
-            if (data.type === 'progress') {
-                document.getElementById('p-overlay').style.width = data.percent + '%';
-                document.getElementById('r-perc').innerText = data.percent + '%';
-                document.getElementById('r-perc').style.display = 'block';
-            }
-            if (data.type === 'complete') {
-                totalRcv++;
-                document.getElementById('r-count').innerText = totalRcv;
-                notifySound.play().catch(()=>{});
-                const blob = new Blob([data.file], { type: data.fileType });
-                const url = URL.createObjectURL(blob);
-                addToList(data.fileName, url, 'r-file-list', false);
-                const a = document.createElement('a'); a.href = url; a.download = data.fileName; a.click();
-                document.getElementById('p-overlay').style.width = '0%';
-                document.getElementById('r-perc').style.display = 'none';
-            }
-        });
+        <div class="btn-group"><button class="btn-dl" onclick="download()">Download PDF</button><button class="btn-pr" onclick="directPrint()">Print</button></div>
+        <button class="btn-clear" onclick="triggerClear()">Clear Data</button>
+    </div>
 
-        conn.on('close', () => {
-            document.getElementById('status-text').innerText = "READY ✅";
-            document.getElementById('status-text').style.color = "#4ade80";
-            activeConn = null;
-        });
-    });
+    <div id="preview-container"><div id="pdf-content">
+        <div class="nid-row"><img id="fImg" class="nid-card"><img id="sImg1" class="seal-side"></div>
+        <div class="nid-row"><img id="bImg" class="nid-card"><img id="sImg2" class="seal-side"></div>
+    </div></div>
 
-    // --- SENDER CONNECTION LOGIC ---
-    function autoConnect(sid) {
-        const conn = peer.connect(sid, { reliable: true });
-        conn.on('open', () => {
-            activeConn = conn;
-            document.getElementById('upBtn').disabled = false;
-            document.getElementById('upBtn').innerText = "ফাইল সিলেক্ট করুন";
-            document.getElementById('m-status').innerText = "Online ✅";
-            document.getElementById('m-status').style.color = "#4ade80";
-            setupSenderActions(conn);
-        });
-        conn.on('error', () => setTimeout(() => autoConnect(sid), 1500));
-        conn.on('close', () => {
-             document.getElementById('upBtn').disabled = true;
-             document.getElementById('upBtn').innerText = "কানেকশন বিচ্ছিন্ন...";
-             document.getElementById('m-status').innerText = "Disconnected";
-             document.getElementById('m-status').style.color = "#f43f5e";
-             setTimeout(() => autoConnect(sid), 2000);
-        });
-    }
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const shopId = params.get('id');
 
-    function setupSenderActions(conn) {
-        document.getElementById('fileInput').onchange = async (e) => {
-            const files = e.target.files;
-            if (!files.length) return;
-            const btn = document.getElementById('upBtn');
-            btn.disabled = true;
-            for (let file of files) {
-                if (!conn.open) break;
-                btn.innerText = "Sending...";
-                await sendFile(conn, file);
-                totalSnd++;
-                document.getElementById('s-count').innerText = totalSnd;
-                addToList(file.name, URL.createObjectURL(file), 's-file-list', true);
-            }
-            btn.disabled = false;
-            btn.innerText = "আরো ফাইল পাঠান";
-            document.getElementById('p-overlay-mobile').style.width = '0%';
-            document.getElementById('s-perc').style.display = 'none';
+        // Professional ICE Config for GitHub (HTTPS)
+        const peerConfig = {
+            config: {
+                'iceServers': [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
+                ],
+                'iceCandidatePoolSize': 10
+            },
+            debug: 1
         };
-    }
 
-    async function sendFile(conn, file) {
-        return new Promise(res => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                let p = 0;
-                const inv = setInterval(() => {
-                    p += 4;
-                    if (conn.open) conn.send({ type: 'progress', percent: p });
-                    document.getElementById('p-overlay-mobile').style.width = p + '%';
-                    document.getElementById('s-perc').innerText = p + '%';
-                    document.getElementById('s-perc').style.display = 'block';
-                    if (p >= 100) {
-                        clearInterval(inv);
-                        if (conn.open) conn.send({ type: 'complete', file: reader.result, fileName: file.name, fileType: file.type });
-                        setTimeout(res, 300);
-                    }
-                }, 20);
-            };
-            reader.readAsArrayBuffer(file);
+        const peer = new Peer(undefined, peerConfig);
+        let activeConn = null;
+
+        peer.on('open', (id) => {
+            if (!shopId) {
+                const qrArea = document.getElementById('qr-container');
+                qrArea.style.display = 'flex';
+                const url = window.location.href.split('?')[0] + "?id=" + id;
+                new QRCode(qrArea, { text: url, width: 120, height: 120 });
+                updateStatus("System Ready - Scan QR", "var(--text-dim)");
+                setupLocalUploads();
+            } else { startMobileUI(shopId); }
         });
-    }
 
-    function toggleFixedID() {
-        localStorage.setItem('isFixedEnabled', document.getElementById('fixedToggle').checked);
-        if (!document.getElementById('fixedToggle').checked) localStorage.removeItem('mySavedID');
-        location.reload();
-    }
+        peer.on('connection', (conn) => {
+            activeConn = conn;
+            updateStatus("Connected ✅", "var(--success)");
+            conn.on('data', (data) => {
+                if (data.action === 'clear') clearAllLocal();
+                else processData(data.file, data.type === 'front' ? 'fImg' : 'bImg', data.type === 'front' ? 'fLabel' : 'bLabel', data.type === 'front' ? 'fWrap' : 'bWrap');
+            });
+        });
 
-    function addToList(name, url, target, isSender) {
-        const empty = document.getElementById('empty');
-        if(empty && target === 'r-file-list') empty.style.display = 'none';
-        const list = document.getElementById(target);
-        const item = document.createElement('div');
-        item.className = 'file-item';
-        let preview = (name.match(/\.(jpg|jpeg|png|gif|webp)$/i)) ? `<img src="${url}" style="width:40px; height:40px; border-radius:8px; object-fit:cover;">` : `<div style="font-size:22px">📄</div>`;
-        let action = isSender ? `<span class="sent-icon">✓</span>` : `<a href="${url}" download="${name}" class="dl-btn">Save</a>`;
-        item.innerHTML = `${preview}<div class="file-info"><div class="file-name">${name}</div></div>${action}`;
-        list.prepend(item);
-    }
-</script>
+        function startMobileUI(targetId) {
+            updateStatus("Connecting to PC...", "var(--primary)");
+            const conn = peer.connect(targetId, { reliable: true });
+            activeConn = conn;
+            conn.on('open', () => {
+                updateStatus("PC Linked ✅", "var(--success)");
+                document.getElementById('fIn').onchange = (e) => send(e, 'front', 'fLabel', 'fWrap');
+                document.getElementById('bIn').onchange = (e) => send(e, 'back', 'bLabel', 'bWrap');
+            });
+            conn.on('close', () => { updateStatus("Disconnected", "var(--danger)"); setTimeout(() => location.reload(), 2000); });
+        }
+
+        function processData(res, imgId, lblId, wrpId) {
+            const img = document.getElementById(imgId); img.src = res; img.style.display = 'block';
+            document.getElementById(lblId).innerText = "Done ✓"; document.getElementById(lblId).style.color = "white";
+            document.getElementById(wrpId).style.backgroundColor = "var(--success)";
+            document.getElementById('preview-container').style.display = 'block';
+            updateSealVisibility();
+        }
+
+        function send(e, type, lblId, wrpId) {
+            const file = e.target.files[0];
+            if (file && activeConn) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    activeConn.send({ type: type, file: ev.target.result });
+                    document.getElementById(lblId).innerText = "Sent ✓";
+                    document.getElementById(wrpId).style.backgroundColor = "var(--success)";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function setupLocalUploads() {
+            document.getElementById('fIn').onchange = (e) => { const r = new FileReader(); r.onload = (ev) => processData(ev.target.result, 'fImg', 'fLabel', 'fWrap'); r.readAsDataURL(e.target.files[0]); };
+            document.getElementById('bIn').onchange = (e) => { const r = new FileReader(); r.onload = (ev) => processData(ev.target.result, 'bImg', 'bLabel', 'bWrap'); r.readAsDataURL(e.target.files[0]); };
+        }
+
+        function triggerClear() { clearAllLocal(); if (activeConn) activeConn.send({ action: 'clear' }); }
+        function clearAllLocal() { location.reload(); }
+        function updateStatus(txt, col) { const el = document.getElementById('connection-status'); el.innerText = txt; el.style.color = col; }
+
+        // Seal logic
+        window.onload = () => updateSealVisibility();
+        function updateSealVisibility() {
+            const s = localStorage.getItem('agentSeal');
+            if (s) {
+                document.getElementById('sImg1').src = s; document.getElementById('sImg2').src = s;
+                document.getElementById('removeSeal').style.display = 'block';
+                document.getElementById('sImg1').style.display = document.getElementById('fImg').src.length > 50 ? 'block' : 'none';
+                document.getElementById('sImg2').style.display = document.getElementById('bImg').src.length > 50 ? 'block' : 'none';
+            }
+        }
+        function clearSeal() { localStorage.removeItem('agentSeal'); location.reload(); }
+        document.getElementById('sIn').onchange = (e) => { const r = new FileReader(); r.onload = (ev) => { localStorage.setItem('agentSeal', ev.target.result); updateSealVisibility(); }; r.readAsDataURL(e.target.files[0]); };
+
+        function download() { const e = document.getElementById('pdf-content'); html2pdf().set({ margin: 0, filename: 'NID_Print.pdf', html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(e).save(); }
+        function directPrint() { window.print(); }
+        peer.on('disconnected', () => peer.reconnect());
+    </script>
 </body>
 </html>
